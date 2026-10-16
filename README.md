@@ -23,6 +23,8 @@ commands from the project directory.
 ```
 
 ```bash
+# ---------- bash ---------- #
+
 ./zdotfiles setup --dry-run
 ./zdotfiles setup
 ./zdotfiles verify
@@ -40,6 +42,8 @@ are never removed.
 ## Options
 
 ```bash
+# ---------- bash ---------- #
+
 # Deploy below another home directory
 ./zdotfiles setup --home /absolute/path
 
@@ -89,6 +93,8 @@ installs the version in the currently checked-out commit or tag.
 ```
 
 ```bash
+# ---------- bash ---------- #
+
 git tag v1.0.0
 git clone --branch v1.0.0 <repository-url> zdotfiles
 ```
@@ -104,6 +110,8 @@ repository with the current machine.
 ```
 
 ```bash
+# ---------- bash ---------- #
+
 bash -n ./zdotfiles
 node .vscode/extensions/znnn.focused-pane-resizer-0.1.0/test.js
 ./zdotfiles verify
