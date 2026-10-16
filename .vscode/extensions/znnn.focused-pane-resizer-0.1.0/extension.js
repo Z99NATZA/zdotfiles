@@ -2,6 +2,11 @@
 
 const vscode = require('vscode');
 const { DEFAULT_STEP, resizeFocusedGroup } = require('./resize-layout');
+const { createSidebarResizer } = require('./sidebar-resize');
+
+const resizeSidebar = createSidebarResizer(
+  (...args) => vscode.commands.executeCommand(...args),
+);
 
 async function resizeFocusedPane(amount) {
   const tabGroups = vscode.window.tabGroups.all;
@@ -32,6 +37,20 @@ function activate(context) {
     vscode.commands.registerCommand(
       'znnn.focusedPane.shrink',
       () => resizeFocusedPane(-DEFAULT_STEP),
+    ),
+    vscode.commands.registerCommand(
+      'znnn.sidebar.expand',
+      (options) => resizeSidebar(
+        'workbench.action.increaseViewSize',
+        options,
+      ),
+    ),
+    vscode.commands.registerCommand(
+      'znnn.sidebar.shrink',
+      (options) => resizeSidebar(
+        'workbench.action.decreaseViewSize',
+        options,
+      ),
     ),
   );
 }

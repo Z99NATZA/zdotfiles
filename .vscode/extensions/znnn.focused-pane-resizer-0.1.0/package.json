@@ -12,7 +12,9 @@
   ],
   "activationEvents": [
     "onCommand:znnn.focusedPane.expand",
-    "onCommand:znnn.focusedPane.shrink"
+    "onCommand:znnn.focusedPane.shrink",
+    "onCommand:znnn.sidebar.expand",
+    "onCommand:znnn.sidebar.shrink"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -24,6 +26,14 @@
       {
         "command": "znnn.focusedPane.shrink",
         "title": "Focused Pane: Shrink"
+      },
+      {
+        "command": "znnn.sidebar.expand",
+        "title": "Sidebar: Expand Safely"
+      },
+      {
+        "command": "znnn.sidebar.shrink",
+        "title": "Sidebar: Shrink Safely"
       }
     ]
   }

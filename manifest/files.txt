@@ -4,4 +4,5 @@
 .vscode/extensions/znnn.focused-pane-resizer-0.1.0/extension.js
 .vscode/extensions/znnn.focused-pane-resizer-0.1.0/package.json
 .vscode/extensions/znnn.focused-pane-resizer-0.1.0/resize-layout.js
+.vscode/extensions/znnn.focused-pane-resizer-0.1.0/sidebar-resize.js
 .vscode/extensions/znnn.focused-pane-resizer-0.1.0/test.js

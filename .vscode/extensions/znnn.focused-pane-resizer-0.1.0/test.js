@@ -2,6 +2,10 @@
 
 const assert = require('node:assert/strict');
 const { resizeFocusedGroup } = require('./resize-layout');
+const {
+  FOCUS_SETTLE_DELAY_MS,
+  createSidebarResizer,
+} = require('./sidebar-resize');
 
 function horizontal(...sizes) {
   return { orientation: 0, groups: sizes.map((size) => ({ size })) };
@@ -44,4 +48,53 @@ function horizontal(...sizes) {
   assert.equal(layout.groups[1].size, 600);
 }
 
-console.log('focused-pane-resizer tests passed');
+async function testSidebarResizer() {
+  {
+    const events = [];
+    const resizeSidebar = createSidebarResizer(
+      async (command) => events.push(['command', command]),
+      async (milliseconds) => events.push(['pause', milliseconds]),
+    );
+
+    assert.equal(await resizeSidebar(
+      'workbench.action.decreaseViewSize',
+      { restoreCommand: 'workbench.action.focusActiveEditorGroup' },
+    ), true);
+    assert.deepEqual(events, [
+      ['command', 'workbench.action.focusSideBar'],
+      ['pause', FOCUS_SETTLE_DELAY_MS],
+      ['command', 'workbench.action.decreaseViewSize'],
+      ['command', 'workbench.action.focusActiveEditorGroup'],
+    ]);
+  }
+
+  {
+    let releaseFocus;
+    const resizeSidebar = createSidebarResizer(
+      (command) => {
+        if (command === 'workbench.action.focusSideBar') {
+          return new Promise((resolve) => {
+            releaseFocus = resolve;
+          });
+        }
+        return Promise.resolve();
+      },
+      async () => {},
+    );
+
+    const firstResize = resizeSidebar('workbench.action.decreaseViewSize');
+    assert.equal(
+      await resizeSidebar('workbench.action.decreaseViewSize'),
+      false,
+    );
+    releaseFocus();
+    assert.equal(await firstResize, true);
+  }
+}
+
+testSidebarResizer()
+  .then(() => console.log('focused-pane-resizer tests passed'))
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });

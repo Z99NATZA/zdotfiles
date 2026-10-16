@@ -43,107 +43,75 @@
     },
     {
         "key": "meta+[Comma]",
-        "command": "runCommands",
+        "command": "znnn.sidebar.shrink",
         "args": {
-            "commands": [
-                "workbench.action.focusSideBar",
-                "workbench.action.decreaseViewSize",
-                "workbench.action.focusActiveEditorGroup"
-            ]
+            "restoreCommand": "workbench.action.focusActiveEditorGroup"
         },
         "when": "sideBarVisible && !sideBarFocus"
     },
     {
         "key": "meta+[Period]",
-        "command": "runCommands",
+        "command": "znnn.sidebar.expand",
         "args": {
-            "commands": [
-                "workbench.action.focusSideBar",
-                "workbench.action.increaseViewSize",
-                "workbench.action.focusActiveEditorGroup"
-            ]
+            "restoreCommand": "workbench.action.focusActiveEditorGroup"
         },
         "when": "sideBarVisible && !sideBarFocus"
     },
     {
         "key": "meta+[Comma]",
-        "command": "workbench.action.decreaseViewSize",
+        "command": "znnn.sidebar.shrink",
         "when": "sideBarVisible && sideBarFocus"
     },
     {
         "key": "meta+[Period]",
-        "command": "workbench.action.increaseViewSize",
+        "command": "znnn.sidebar.expand",
         "when": "sideBarVisible && sideBarFocus"
     },
     {
         "key": "meta+[Comma]",
-        "command": "runCommands",
+        "command": "znnn.sidebar.shrink",
         "args": {
-            "commands": [
-                "workbench.action.focusSideBar",
-                "workbench.action.decreaseViewSize",
-                "workbench.action.terminal.focus"
-            ]
+            "restoreCommand": "workbench.action.terminal.focus"
         },
         "when": "sideBarVisible && terminalFocus && !terminalEditorFocus"
     },
     {
         "key": "meta+[Period]",
-        "command": "runCommands",
+        "command": "znnn.sidebar.expand",
         "args": {
-            "commands": [
-                "workbench.action.focusSideBar",
-                "workbench.action.increaseViewSize",
-                "workbench.action.terminal.focus"
-            ]
+            "restoreCommand": "workbench.action.terminal.focus"
         },
         "when": "sideBarVisible && terminalFocus && !terminalEditorFocus"
     },
     {
         "key": "meta+[Comma]",
-        "command": "runCommands",
+        "command": "znnn.sidebar.shrink",
         "args": {
-            "commands": [
-                "workbench.action.focusSideBar",
-                "workbench.action.decreaseViewSize",
-                "workbench.action.focusPanel"
-            ]
+            "restoreCommand": "workbench.action.focusPanel"
         },
         "when": "sideBarVisible && panelFocus && !terminalFocus"
     },
     {
         "key": "meta+[Period]",
-        "command": "runCommands",
+        "command": "znnn.sidebar.expand",
         "args": {
-            "commands": [
-                "workbench.action.focusSideBar",
-                "workbench.action.increaseViewSize",
-                "workbench.action.focusPanel"
-            ]
+            "restoreCommand": "workbench.action.focusPanel"
         },
         "when": "sideBarVisible && panelFocus && !terminalFocus"
     },
     {
         "key": "meta+[Comma]",
-        "command": "runCommands",
+        "command": "znnn.sidebar.shrink",
         "args": {
-            "commands": [
-                "workbench.action.focusSideBar",
-                "workbench.action.decreaseViewSize",
-                "workbench.action.focusAuxiliaryBar"
-            ]
+            "restoreCommand": "workbench.action.focusAuxiliaryBar"
         },
         "when": "sideBarVisible && auxiliaryBarFocus"
     },
     {
         "key": "meta+[Period]",
-        "command": "runCommands",
+        "command": "znnn.sidebar.expand",
         "args": {
-            "commands": [
-                "workbench.action.focusSideBar",
-                "workbench.action.increaseViewSize",
-                "workbench.action.focusAuxiliaryBar"
-            ]
+            "restoreCommand": "workbench.action.focusAuxiliaryBar"
         },
         "when": "sideBarVisible && auxiliaryBarFocus"
     },
@@ -154,6 +122,11 @@
     {
         "key": "meta+[KeyL]",
         "command": "workbench.action.nextEditorInGroup"
+    },
+    {
+        "key": "meta+w",
+        "command": "workbench.action.closeActiveEditor",
+        "when": "editorTextFocus"
     },
     {
         "key": "ctrl+c",
