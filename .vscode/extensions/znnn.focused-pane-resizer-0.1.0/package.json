@@ -1,0 +1,30 @@
+{
+  "name": "focused-pane-resizer",
+  "displayName": "Focused Pane Resizer",
+  "description": "Resize the focused editor group from its right edge, or its left edge when it is rightmost.",
+  "version": "0.1.0",
+  "publisher": "znnn",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:znnn.focusedPane.expand",
+    "onCommand:znnn.focusedPane.shrink"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "znnn.focusedPane.expand",
+        "title": "Focused Pane: Expand"
+      },
+      {
+        "command": "znnn.focusedPane.shrink",
+        "title": "Focused Pane: Shrink"
+      }
+    ]
+  }
+}

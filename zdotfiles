@@ -1,0 +1,315 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+files_manifest="$repo_root/manifest/files.txt"
+extensions_manifest="$repo_root/manifest/vscode-extensions.txt"
+version_file="$repo_root/VERSION"
+
+target_home=${HOME:?HOME is not set}
+dry_run=false
+skip_extensions=false
+skip_system_settings=false
+backup_root=
+backup_used=false
+
+usage() {
+    cat <<'EOF'
+Usage:
+  ./zdotfiles setup [options]
+  ./zdotfiles verify [options]
+  ./zdotfiles version
+  ./zdotfiles help
+
+Options:
+  --home PATH             Use PATH as the target home directory
+  --dry-run               Print setup actions without changing anything
+  --skip-extensions       Skip VS Code Marketplace extension installation/checks
+  --skip-system-settings  Skip GNOME/IBus settings
+  -h, --help              Show this help
+EOF
+}
+
+die() {
+    printf 'zdotfiles: %s\n' "$*" >&2
+    exit 1
+}
+
+note() {
+    printf '%s\n' "$*"
+}
+
+parse_options() {
+    while (($#)); do
+        case "$1" in
+            --home)
+                (($# >= 2)) || die '--home requires a path'
+                target_home=$2
+                shift 2
+                ;;
+            --dry-run)
+                dry_run=true
+                shift
+                ;;
+            --skip-extensions)
+                skip_extensions=true
+                shift
+                ;;
+            --skip-system-settings)
+                skip_system_settings=true
+                shift
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            *)
+                die "unknown option: $1"
+                ;;
+        esac
+    done
+
+    [[ $target_home = /* ]] || die '--home must be an absolute path'
+    [[ $target_home != / ]] || die 'refusing to use / as the target home'
+    target_home=${target_home%/}
+}
+
+for_each_manifest_entry() {
+    local manifest=$1
+    local callback=$2
+    local entry
+
+    [[ -f $manifest ]] || die "missing manifest: $manifest"
+    while IFS= read -r entry || [[ -n $entry ]]; do
+        [[ -z $entry || $entry = \#* ]] && continue
+        [[ $entry != /* && $entry != *'..'* ]] || die "unsafe manifest entry: $entry"
+        "$callback" "$entry"
+    done < "$manifest"
+}
+
+prepare_backup_root() {
+    local state_root
+
+    if [[ $target_home = ${HOME:-} && -n ${XDG_STATE_HOME:-} ]]; then
+        state_root=$XDG_STATE_HOME
+    else
+        state_root="$target_home/.local/state"
+    fi
+    backup_root="$state_root/zdotfiles/backups/$(date +%Y%m%d-%H%M%S)"
+}
+
+install_file() {
+    local relative_path=$1
+    local source_path="$repo_root/$relative_path"
+    local destination_path="$target_home/$relative_path"
+    local destination_directory
+    local staged_path
+    local backup_path
+
+    [[ -f $source_path ]] || die "source file is missing: $relative_path"
+
+    if [[ -f $destination_path ]] && cmp -s -- "$source_path" "$destination_path"; then
+        note "unchanged  $relative_path"
+        return
+    fi
+
+    if $dry_run; then
+        if [[ -e $destination_path || -L $destination_path ]]; then
+            note "would back up and install  $relative_path"
+        else
+            note "would install              $relative_path"
+        fi
+        return
+    fi
+
+    destination_directory=${destination_path%/*}
+    mkdir -p -- "$destination_directory"
+    staged_path="$destination_path.zdotfiles-stage.$$"
+    cp -a -- "$source_path" "$staged_path"
+
+    if [[ -e $destination_path || -L $destination_path ]]; then
+        backup_path="$backup_root/$relative_path"
+        mkdir -p -- "${backup_path%/*}"
+        mv -- "$destination_path" "$backup_path"
+        backup_used=true
+    fi
+
+    mv -- "$staged_path" "$destination_path"
+    note "installed  $relative_path"
+}
+
+verify_file() {
+    local relative_path=$1
+    local source_path="$repo_root/$relative_path"
+    local destination_path="$target_home/$relative_path"
+
+    if [[ ! -e $destination_path && ! -L $destination_path ]]; then
+        note "missing    $relative_path"
+        verify_failed=true
+    elif ! cmp -s -- "$source_path" "$destination_path"; then
+        note "different  $relative_path"
+        verify_failed=true
+    else
+        note "ok         $relative_path"
+    fi
+}
+
+installed_extensions_cache=
+
+load_installed_extensions() {
+    if [[ -z $installed_extensions_cache ]]; then
+        installed_extensions_cache=$(code --list-extensions 2>/dev/null || true)
+    fi
+}
+
+install_extension() {
+    local extension_id=$1
+
+    load_installed_extensions
+    if grep -Fqx -- "$extension_id" <<<"$installed_extensions_cache"; then
+        note "unchanged  VS Code extension $extension_id"
+        return
+    fi
+
+    if $dry_run; then
+        note "would install VS Code extension $extension_id"
+        return
+    fi
+
+    code --install-extension "$extension_id"
+    installed_extensions_cache+=$'\n'"$extension_id"
+}
+
+verify_extension() {
+    local extension_id=$1
+
+    load_installed_extensions
+    if grep -Fqx -- "$extension_id" <<<"$installed_extensions_cache"; then
+        note "ok         VS Code extension $extension_id"
+    else
+        note "missing    VS Code extension $extension_id"
+        verify_failed=true
+    fi
+}
+
+can_manage_ibus() {
+    command -v gsettings >/dev/null 2>&1 \
+        && gsettings list-schemas | grep -Fqx 'org.freedesktop.ibus.panel.emoji' \
+        && gsettings list-keys org.freedesktop.ibus.panel.emoji | grep -Fqx 'hotkey'
+}
+
+setup_system_settings() {
+    local expected="['<Super>semicolon']"
+    local current
+
+    if ! can_manage_ibus; then
+        note 'skipped    IBus emoji hotkey (schema unavailable)'
+        return
+    fi
+
+    current=$(gsettings get org.freedesktop.ibus.panel.emoji hotkey)
+    if [[ $current = "$expected" ]]; then
+        note 'unchanged  IBus emoji hotkey'
+    elif $dry_run; then
+        note "would set IBus emoji hotkey to $expected"
+    else
+        gsettings set org.freedesktop.ibus.panel.emoji hotkey "$expected"
+        note 'installed  IBus emoji hotkey'
+    fi
+}
+
+verify_system_settings() {
+    local expected="['<Super>semicolon']"
+    local current
+
+    if ! can_manage_ibus; then
+        note 'skipped    IBus emoji hotkey (schema unavailable)'
+        return
+    fi
+
+    current=$(gsettings get org.freedesktop.ibus.panel.emoji hotkey)
+    if [[ $current = "$expected" ]]; then
+        note 'ok         IBus emoji hotkey'
+    else
+        note "different  IBus emoji hotkey: $current"
+        verify_failed=true
+    fi
+}
+
+setup() {
+    prepare_backup_root
+    note "zdotfiles $(<"$version_file") setup -> $target_home"
+    for_each_manifest_entry "$files_manifest" install_file
+
+    if ! $skip_extensions; then
+        if [[ $target_home != ${HOME:-} ]]; then
+            note 'skipped    Marketplace extensions (--home is not current HOME)'
+        elif command -v code >/dev/null 2>&1; then
+            for_each_manifest_entry "$extensions_manifest" install_extension
+        else
+            note 'skipped    Marketplace extensions (code command unavailable)'
+        fi
+    fi
+
+    if ! $skip_system_settings; then
+        if [[ $target_home != ${HOME:-} ]]; then
+            note 'skipped    system settings (--home is not current HOME)'
+        else
+            setup_system_settings
+        fi
+    fi
+
+    if $backup_used; then
+        note "backup    $backup_root"
+    fi
+}
+
+verify() {
+    verify_failed=false
+    note "zdotfiles $(<"$version_file") verify -> $target_home"
+    for_each_manifest_entry "$files_manifest" verify_file
+
+    if ! $skip_extensions && [[ $target_home = ${HOME:-} ]]; then
+        if command -v code >/dev/null 2>&1; then
+            for_each_manifest_entry "$extensions_manifest" verify_extension
+        else
+            note 'skipped    Marketplace extensions (code command unavailable)'
+        fi
+    fi
+
+    if ! $skip_system_settings && [[ $target_home = ${HOME:-} ]]; then
+        verify_system_settings
+    fi
+
+    if $verify_failed; then
+        return 1
+    fi
+}
+
+command_name=${1:-help}
+if (($#)); then
+    shift
+fi
+
+case "$command_name" in
+    setup)
+        parse_options "$@"
+        setup
+        ;;
+    verify)
+        parse_options "$@"
+        verify
+        ;;
+    version|--version|-V)
+        (($# == 0)) || die 'version does not accept options'
+        cat "$version_file"
+        ;;
+    help|--help|-h)
+        (($# == 0)) || die 'help does not accept options'
+        usage
+        ;;
+    *)
+        die "unknown command: $command_name (try ./zdotfiles help)"
+        ;;
+esac

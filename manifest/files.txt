@@ -1,0 +1,7 @@
+# Paths are relative to both the repository root and the target home directory.
+.config/Code/User/keybindings.json
+.config/Code/User/settings.json
+.vscode/extensions/znnn.focused-pane-resizer-0.1.0/extension.js
+.vscode/extensions/znnn.focused-pane-resizer-0.1.0/package.json
+.vscode/extensions/znnn.focused-pane-resizer-0.1.0/resize-layout.js
+.vscode/extensions/znnn.focused-pane-resizer-0.1.0/test.js

@@ -1,0 +1,7 @@
+# Extensions referenced directly by settings.json.
+daltonmenezes.aura-theme
+pkief.material-icon-theme
+s-nlf-fh.glassit
+shalldie.background
+theqtcompany.qt-core
+vscodevim.vim
