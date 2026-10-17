@@ -129,6 +129,11 @@
         "when": "editorTextFocus"
     },
     {
+        "key": "ctrl+d",
+        "command": "editor.action.addSelectionToNextFindMatch",
+        "when": "editorTextFocus && vim.active && vim.mode == 'Visual'"
+    },
+    {
         "key": "ctrl+c",
         "command": "-editor.action.clipboardCopyAction",
         "when": "textInputFocus"
