@@ -50,3 +50,25 @@ Esc         Return to a single cursor
 
 `Ctrl+D` retains its normal Vim half-page scrolling behavior outside Visual
 mode.
+
+## Neovim
+
+The leader key is `\`. These are custom mappings in `.config/nvim/init.lua`:
+
+| Shortcut | Action |
+| --- | --- |
+| `kj` in Insert mode | Return to Normal mode |
+| `Ctrl+J` / `Ctrl+K` | Move five lines down or up in Normal and Visual modes |
+| `Alt+J` / `Alt+K` | Move the line or selection down or up |
+| `Ctrl+B` | Toggle nvim-tree sidebar |
+| `Ctrl+Space` | Toggle the terminal panel |
+| `Super+,` / `Super+.` | Shrink or expand the visible sidebar |
+| `Super+-` / `Super+=` | Shrink or expand the visible terminal panel |
+| `\e` / `\ff` | Open a file path or find files with Telescope |
+| `\cp` | Copy the selected file path or current file path |
+| `\w` / `\df` | Save the file or save all files and quit |
+| `\rs` | Restart Neovim and reload the configuration |
+| `K` / `gd` / `gr` | Show a hint, go to a definition, or find references (LSP) |
+| `[h` / `]h` | Go to the previous or next Git change |
+
+Neovim receives `Super` shortcuts only when the host terminal forwards them.

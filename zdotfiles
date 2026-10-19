@@ -3,7 +3,8 @@
 set -euo pipefail
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-files_manifest="$repo_root/manifest/files.txt"
+vscode_files_manifest="$repo_root/manifest/vscode-files.txt"
+nvim_files_manifest="$repo_root/manifest/nvim-files.txt"
 extensions_manifest="$repo_root/manifest/vscode-extensions.txt"
 version_file="$repo_root/VERSION"
 
@@ -11,6 +12,7 @@ target_home=${HOME:?HOME is not set}
 dry_run=false
 skip_extensions=false
 skip_system_settings=false
+component=all
 backup_root=
 backup_used=false
 
@@ -24,6 +26,7 @@ Usage:
 
 Options:
   --home PATH             Use PATH as the target home directory
+  --only nvim|vscode       Manage only the selected editor (default: both)
   --dry-run               Print setup actions without changing anything
   --skip-extensions       Skip VS Code Marketplace extension installation/checks
   --skip-system-settings  Skip GNOME/IBus settings
@@ -46,6 +49,15 @@ parse_options() {
             --home)
                 (($# >= 2)) || die '--home requires a path'
                 target_home=$2
+                shift 2
+                ;;
+            --only)
+                (($# >= 2)) || die '--only requires nvim or vscode'
+                [[ $component = all ]] || die '--only may be specified only once'
+                case "$2" in
+                    nvim|vscode) component=$2 ;;
+                    *) die "unknown component: $2 (expected nvim or vscode)" ;;
+                esac
                 shift 2
                 ;;
             --dry-run)
@@ -240,24 +252,30 @@ verify_system_settings() {
 setup() {
     prepare_backup_root
     note "zdotfiles $(<"$version_file") setup -> $target_home"
-    for_each_manifest_entry "$files_manifest" install_file
+    if [[ $component != nvim ]]; then
+        for_each_manifest_entry "$vscode_files_manifest" install_file
 
-    if ! $skip_extensions; then
-        if [[ $target_home != ${HOME:-} ]]; then
-            note 'skipped    Marketplace extensions (--home is not current HOME)'
-        elif command -v code >/dev/null 2>&1; then
-            for_each_manifest_entry "$extensions_manifest" install_extension
-        else
-            note 'skipped    Marketplace extensions (code command unavailable)'
+        if ! $skip_extensions; then
+            if [[ $target_home != ${HOME:-} ]]; then
+                note 'skipped    Marketplace extensions (--home is not current HOME)'
+            elif command -v code >/dev/null 2>&1; then
+                for_each_manifest_entry "$extensions_manifest" install_extension
+            else
+                note 'skipped    Marketplace extensions (code command unavailable)'
+            fi
+        fi
+
+        if ! $skip_system_settings; then
+            if [[ $target_home != ${HOME:-} ]]; then
+                note 'skipped    system settings (--home is not current HOME)'
+            else
+                setup_system_settings
+            fi
         fi
     fi
 
-    if ! $skip_system_settings; then
-        if [[ $target_home != ${HOME:-} ]]; then
-            note 'skipped    system settings (--home is not current HOME)'
-        else
-            setup_system_settings
-        fi
+    if [[ $component != vscode ]]; then
+        for_each_manifest_entry "$nvim_files_manifest" install_file
     fi
 
     if $backup_used; then
@@ -268,18 +286,24 @@ setup() {
 verify() {
     verify_failed=false
     note "zdotfiles $(<"$version_file") verify -> $target_home"
-    for_each_manifest_entry "$files_manifest" verify_file
+    if [[ $component != nvim ]]; then
+        for_each_manifest_entry "$vscode_files_manifest" verify_file
 
-    if ! $skip_extensions && [[ $target_home = ${HOME:-} ]]; then
-        if command -v code >/dev/null 2>&1; then
-            for_each_manifest_entry "$extensions_manifest" verify_extension
-        else
-            note 'skipped    Marketplace extensions (code command unavailable)'
+        if ! $skip_extensions && [[ $target_home = ${HOME:-} ]]; then
+            if command -v code >/dev/null 2>&1; then
+                for_each_manifest_entry "$extensions_manifest" verify_extension
+            else
+                note 'skipped    Marketplace extensions (code command unavailable)'
+            fi
+        fi
+
+        if ! $skip_system_settings && [[ $target_home = ${HOME:-} ]]; then
+            verify_system_settings
         fi
     fi
 
-    if ! $skip_system_settings && [[ $target_home = ${HOME:-} ]]; then
-        verify_system_settings
+    if [[ $component != vscode ]]; then
+        for_each_manifest_entry "$nvim_files_manifest" verify_file
     fi
 
     if $verify_failed; then
