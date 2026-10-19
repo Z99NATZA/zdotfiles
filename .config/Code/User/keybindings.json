@@ -124,6 +124,14 @@
         "command": "workbench.action.nextEditorInGroup"
     },
     {
+        "key": "meta+[KeyJ]",
+        "command": "znnn.focusTerminal"
+    },
+    {
+        "key": "meta+[KeyK]",
+        "command": "workbench.action.focusActiveEditorGroup"
+    },
+    {
         "key": "meta+w",
         "command": "workbench.action.closeActiveEditor",
         "when": "editorTextFocus"

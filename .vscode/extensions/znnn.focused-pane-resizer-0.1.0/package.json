@@ -14,7 +14,8 @@
     "onCommand:znnn.focusedPane.expand",
     "onCommand:znnn.focusedPane.shrink",
     "onCommand:znnn.sidebar.expand",
-    "onCommand:znnn.sidebar.shrink"
+    "onCommand:znnn.sidebar.shrink",
+    "onCommand:znnn.focusTerminal"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -34,6 +35,10 @@
       {
         "command": "znnn.sidebar.shrink",
         "title": "Sidebar: Shrink Safely"
+      },
+      {
+        "command": "znnn.focusTerminal",
+        "title": "Focus Terminal (Create If Needed)"
       }
     ]
   }

@@ -28,6 +28,13 @@ async function resizeFocusedPane(amount) {
   await vscode.commands.executeCommand('vscode.setEditorLayout', layout);
 }
 
+function focusTerminal() {
+  const terminal = vscode.window.activeTerminal
+    ?? vscode.window.terminals[0]
+    ?? vscode.window.createTerminal({ location: vscode.TerminalLocation.Panel });
+  terminal.show();
+}
+
 function activate(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
@@ -52,6 +59,7 @@ function activate(context) {
         options,
       ),
     ),
+    vscode.commands.registerCommand('znnn.focusTerminal', focusTerminal),
   );
 }
 
