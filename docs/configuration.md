@@ -24,6 +24,35 @@ Wayland: wl-clipboard. X11: xclip or xsel. Missing clipboard tools do not block 
 
 ## Setup
 
+### Ubuntu packages
+
+```bash
+# ---------- bash ---------- #
+
+# Required for Neovim setup
+sudo apt update
+sudo apt install neovim git build-essential curl tar make
+
+# Optional search and desktop clipboard tools
+sudo apt install ripgrep
+sudo apt install wl-clipboard  # Wayland
+sudo apt install xclip         # X11
+
+# Optional Rust language server
+sudo apt install rustup
+rustup toolchain install stable --profile minimal --component rust-analyzer
+rustup default stable  # only when no default toolchain is configured
+
+# Optional Python language server
+sudo apt install pipx
+pipx install basedpyright==1.40.2
+pipx ensurepath
+```
+
+For an existing default Rust toolchain, run
+`rustup component add rust-analyzer`. Open a new login shell after
+`pipx ensurepath`, then reopen Neovim. Language servers must be on `PATH`.
+
 ```bash
 # ---------- bash ---------- #
 
@@ -116,8 +145,6 @@ ${XDG_DATA_HOME:-$HOME/.local/share}/zdotfiles/.
 Neovim and the installer include that bin directory in their own PATH.
 No installed tools are removed and no shell profiles are changed.
 ```
-
-Package commands: [README](../README.md).
 
 References: [Ubuntu Neovim package](https://packages.ubuntu.com/neovim),
 [Basedpyright installation](https://docs.basedpyright.com/dev/installation/command-line-and-language-server/).
