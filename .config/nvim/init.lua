@@ -101,6 +101,10 @@ map({ "n", "i", "x", "t" }, "<C-0>", toggle_sidebar_focus, {
   silent = true,
   desc = "Switch focus between sidebar and editor",
 })
+map("n", "<leader>s", toggle_sidebar_focus, {
+  silent = true,
+  desc = "Switch focus between sidebar and editor",
+})
 
 local function copy_file_path(path)
   if type(path) ~= "string" or path == "" then

@@ -56,6 +56,7 @@ Outside Visual mode, Ctrl+D keeps Vim half-page scrolling.
 | `Ctrl+J` / `Ctrl+K` | Move five lines down or up in Normal and Visual modes |
 | `Alt+J` / `Alt+K` | Move the line or selection down or up |
 | `Ctrl+0` | Switch focus between the nvim-tree sidebar and editor |
+| `\s` in Normal mode | Switch focus between the nvim-tree sidebar and editor |
 | `Ctrl+B` | Toggle nvim-tree sidebar |
 | `Ctrl+Space` | Toggle the terminal panel |
 | `Super+,` / `Super+.` | Shrink or expand the visible sidebar |
@@ -75,6 +76,7 @@ Source: .config/nvim/init.lua. Leader: \
 Sidebar focus
 ----------
 Ctrl+0 works in Normal, Insert, Visual, and Terminal modes.
+\s provides the same action in Normal mode, including over SSH.
 Opens/focuses the sidebar, then returns to the previous editor split.
 If that split closed, selects another editor in the tab or creates one.
 
