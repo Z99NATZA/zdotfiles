@@ -249,8 +249,7 @@ verify_system_settings() {
     fi
 }
 
-nvim_preflight() {
-    local missing=false executable version
+nvim_environment_valid() {
     if [[ ${NVIM_APPNAME:-nvim} != nvim ]]; then
         note 'unsupported NVIM_APPNAME: this installer deploys the nvim configuration'
         return 1
@@ -259,6 +258,12 @@ nvim_preflight() {
         note 'unsupported XDG_CONFIG_HOME: this installer deploys to ~/.config'
         return 1
     fi
+}
+
+nvim_preflight() {
+    local missing=false executable
+    nvim_environment_valid || return 1
+    nvim_dependency_paths
     for executable in nvim git cc curl tar rg rust-analyzer basedpyright-langserver; do
         if ! command -v "$executable" >/dev/null 2>&1; then
             note "missing    Neovim dependency: $executable"
@@ -269,13 +274,9 @@ nvim_preflight() {
         note 'missing    rust-analyzer toolchain component (run rustup component add rust-analyzer)'
         missing=true
     fi
-    if command -v nvim >/dev/null 2>&1; then
-        version=$(NVIM_LOG_FILE=/dev/null nvim --version)
-        if [[ ! $version =~ NVIM\ v([0-9]+)\.([0-9]+)\.([0-9]+) ]] ||
-            (( BASH_REMATCH[1] == 0 && (BASH_REMATCH[2] < 11 || (BASH_REMATCH[2] == 11 && BASH_REMATCH[3] < 2)) )); then
-            note 'missing    Neovim >= 0.11.2'
-            missing=true
-        fi
+    if ! nvim_version_supported; then
+        note 'missing    Neovim >= 0.11.2'
+        missing=true
     fi
     if [[ -n ${WAYLAND_DISPLAY:-} ]]; then
         if ! command -v wl-copy >/dev/null 2>&1 || ! command -v wl-paste >/dev/null 2>&1; then
@@ -299,7 +300,12 @@ nvim_runtime() {
 
 setup() {
     if [[ $component != vscode && $target_home = ${HOME:-} ]]; then
-        nvim_preflight || die 'Neovim prerequisites are missing (see docs/configuration.md)'
+        nvim_environment_valid || die 'unsupported Neovim configuration location'
+        nvim_dependency_paths
+        nvim_setup_dependencies
+        if ! $dry_run; then
+            nvim_preflight || die 'Neovim prerequisites are still missing (see docs/configuration.md)'
+        fi
     fi
     prepare_backup_root
     note "zdotfiles $(<"$version_file") setup -> $target_home"
@@ -387,6 +393,8 @@ verify() {
         return 1
     fi
 }
+
+. "$repo_root/scripts/nvim-dependencies.sh"
 
 command_name=${1:-help}
 if (($#)); then

@@ -6,7 +6,7 @@
 Target
 ==========
 Ubuntu 26.04 LTS, Bash, and core utilities.
-Install VS Code and Neovim separately; setup reports missing dependencies.
+Install VS Code separately. Neovim setup installs missing dependencies automatically.
 
 VS Code
 ----------
@@ -62,7 +62,7 @@ Other home:   PATH/.local/state/zdotfiles/backups/<timestamp>/
 Alternate home
 ----------
 --home targeting another user copies configuration only.
-Run setup as that user to install extensions and Neovim plugins/parsers.
+Run setup as that user to install dependencies, extensions, and Neovim plugins/parsers.
 Neovim requires default XDG_CONFIG_HOME and NVIM_APPNAME;
 custom XDG data, state, and cache directories are supported.
 ```
@@ -76,7 +76,7 @@ Manifests: [VS Code files](../manifest/vscode-files.txt),
 ```text
 Setup
 ==========
-Checks prerequisites, restores plugins to lazy-lock.json commits,
+Installs missing prerequisites on Ubuntu 26.04, restores plugins to lazy-lock.json commits,
 installs parsers, and loads the configuration headlessly.
 Requires network access; preserves the lockfile and refuses to discard local plugin edits.
 System packages and Rust toolchains are not locked by this repository.
@@ -90,28 +90,33 @@ The list is maintained in init.lua.
 ```bash
 # ---------- bash ---------- #
 
-# Prepare Ubuntu 26.04 dependencies
-sudo apt update
-sudo apt install neovim git build-essential curl tar ripgrep python3-venv rustup wl-clipboard xclip
+# Preview dependency installation without changes or sudo
+./zdotfiles setup --only nvim --dry-run
 
-# Skip if rust-analyzer already works on PATH
-rustup toolchain install stable --profile minimal
-rustup component add rust-analyzer --toolchain stable
-# Only if no default toolchain is configured
-rustup default stable
+# Install missing dependencies, config, plugins, and parsers
+# sudo may prompt for Ubuntu package installation; run as your normal user
+make setup-nvim
 
-# Skip if basedpyright-langserver is already on PATH
-python3 -m venv "$HOME/.local/share/zdotfiles/venvs/basedpyright"
-"$HOME/.local/share/zdotfiles/venvs/basedpyright/bin/python" -m pip install basedpyright==1.40.2
-mkdir -p "$HOME/.local/bin"
-# Refuses to overwrite an existing command
-ln -s "$HOME/.local/share/zdotfiles/venvs/basedpyright/bin/basedpyright-langserver" "$HOME/.local/bin/basedpyright-langserver"
-
-# Also keep these directories in your shell configuration
-export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
-
-./zdotfiles setup --only nvim
+# Check only; never install dependencies
 ./zdotfiles verify --only nvim
+```
+
+```text
+Dependency installation
+==========
+Existing commands are reused. apt-get installs only missing system packages;
+Neovim below 0.11.2 is upgraded through apt when possible.
+Apt or language-server installation failure stops before config deployment.
+Other operating systems require manually installed dependencies.
+
+Language servers
+----------
+Missing rust-analyzer: install the stable Rust toolchain/component and a launcher
+that selects stable without replacing an existing default toolchain.
+Missing basedpyright-langserver: install basedpyright 1.40.2 in a Python venv.
+Managed tools live under ${XDG_DATA_HOME:-$HOME/.local/share}/zdotfiles/.
+Neovim and the installer add the managed bin directory to their own PATH;
+no shell profile changes or manual PATH export are needed, including over SSH.
 ```
 
 References: [Ubuntu Neovim package](https://packages.ubuntu.com/neovim),

@@ -1,3 +1,7 @@
+-- Include language servers provisioned by zdotfiles, including in SSH sessions.
+local zdotfiles_bin = vim.fn.stdpath("data"):gsub("/nvim$", "") .. "/zdotfiles/bin"
+vim.env.PATH = zdotfiles_bin .. ":" .. (vim.env.PATH or "")
+
 -- Basic editor settings
 vim.g.mapleader = "\\"
 vim.g.maplocalleader = "\\"
