@@ -57,6 +57,51 @@ map("n", "<M-k>", "<cmd>move .-2<CR>==", { desc = "Move line up" })
 map("x", "<M-j>", ":move '>+1<CR>gv=gv", { desc = "Move selection down" })
 map("x", "<M-k>", ":move '<-2<CR>gv=gv", { desc = "Move selection up" })
 
+-- Switch focus without closing the sidebar or losing the previous editor split.
+local function toggle_sidebar_focus()
+  local api = require("nvim-tree.api")
+  local current = vim.api.nvim_get_current_win()
+  local function is_editor(win)
+    if not win or not vim.api.nvim_win_is_valid(win) then
+      return false
+    end
+    local buf = vim.api.nvim_win_get_buf(win)
+    return vim.api.nvim_win_get_tabpage(win) == vim.api.nvim_get_current_tabpage()
+      and vim.api.nvim_win_get_config(win).relative == ""
+      and vim.bo[buf].buftype == ""
+      and vim.bo[buf].filetype ~= "NvimTree"
+  end
+
+  vim.cmd.stopinsert()
+  if vim.bo.filetype == "NvimTree" then
+    local target = vim.t.sidebar_editor_win
+    if not is_editor(target) then
+      target = nil
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+        if is_editor(win) then
+          target = win
+          break
+        end
+      end
+    end
+    if target then
+      vim.api.nvim_set_current_win(target)
+    else
+      vim.cmd("rightbelow vnew")
+    end
+  else
+    if is_editor(current) then
+      vim.t.sidebar_editor_win = current
+    end
+    api.tree.open({ focus = true })
+  end
+end
+
+map({ "n", "i", "x", "t" }, "<C-0>", toggle_sidebar_focus, {
+  silent = true,
+  desc = "Switch focus between sidebar and editor",
+})
+
 local function copy_file_path(path)
   if type(path) ~= "string" or path == "" then
     vim.notify("No file path to copy", vim.log.levels.WARN)

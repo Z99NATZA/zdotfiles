@@ -60,6 +60,7 @@ The leader key is `\`. These are custom mappings in `.config/nvim/init.lua`:
 | `kj` in Insert mode | Return to Normal mode |
 | `Ctrl+J` / `Ctrl+K` | Move five lines down or up in Normal and Visual modes |
 | `Alt+J` / `Alt+K` | Move the line or selection down or up |
+| `Ctrl+0` | Switch focus between the nvim-tree sidebar and editor |
 | `Ctrl+B` | Toggle nvim-tree sidebar |
 | `Ctrl+Space` | Toggle the terminal panel |
 | `Super+,` / `Super+.` | Shrink or expand the visible sidebar |
@@ -71,4 +72,12 @@ The leader key is `\`. These are custom mappings in `.config/nvim/init.lua`:
 | `K` / `gd` / `gr` | Show a hint, go to a definition, or find references (LSP) |
 | `[h` / `]h` | Go to the previous or next Git change |
 
+`Ctrl+0` works in Normal, Insert, Visual, and Terminal modes. It opens and
+focuses the sidebar when needed, then returns to the previous editor split
+without closing the sidebar. If that split has closed, it uses another editor
+in the same tab or creates one.
+
+The host terminal must send `Ctrl+0` as a distinct key, such as CSI-u
+`ESC [ 48 ; 5 u`. zter forwards the physical top-row zero key this way across
+US and Thai Kedmanee layouts unless a configured zter shortcut consumes it.
 Neovim receives `Super` shortcuts only when the host terminal forwards them.
