@@ -8,3 +8,7 @@
 
 For the setup command, return to the main [README](../README.md). Branch updates
 are covered in [Versioning](versioning.md).
+
+## Notes
+
+- commit 1 line en: https://www.conventionalcommits.org/en/v1.0.0/

@@ -28,7 +28,7 @@ Options:
   --home PATH             Use PATH as the target home directory
   --only nvim|vscode       Manage only the selected editor (default: both)
   --dry-run               Print setup actions without changing anything
-  --skip-extensions       Skip VS Code Marketplace extension installation/checks
+  --skip-extensions       Skip all VS Code extension installation/checks
   --skip-system-settings  Skip GNOME/IBus settings
   -h, --help              Show this help
 EOF
@@ -257,11 +257,17 @@ setup() {
 
         if ! $skip_extensions; then
             if [[ $target_home != ${HOME:-} ]]; then
-                note 'skipped    Marketplace extensions (--home is not current HOME)'
+                note 'skipped    VS Code extensions (--home is not current HOME)'
             elif command -v code >/dev/null 2>&1; then
+                command -v python3 >/dev/null 2>&1 || die 'python3 is required to install the local VS Code extension'
+                if $dry_run; then
+                    python3 "$repo_root/scripts/local-extension.py" setup --dry-run
+                else
+                    python3 "$repo_root/scripts/local-extension.py" setup
+                fi
                 for_each_manifest_entry "$extensions_manifest" install_extension
             else
-                note 'skipped    Marketplace extensions (code command unavailable)'
+                note 'skipped    VS Code extensions (code command unavailable)'
             fi
         fi
 
@@ -291,9 +297,13 @@ verify() {
 
         if ! $skip_extensions && [[ $target_home = ${HOME:-} ]]; then
             if command -v code >/dev/null 2>&1; then
+                command -v python3 >/dev/null 2>&1 || die 'python3 is required to verify the local VS Code extension'
+                if ! python3 "$repo_root/scripts/local-extension.py" verify; then
+                    verify_failed=true
+                fi
                 for_each_manifest_entry "$extensions_manifest" verify_extension
             else
-                note 'skipped    Marketplace extensions (code command unavailable)'
+                note 'skipped    VS Code extensions (code command unavailable)'
             fi
         fi
 

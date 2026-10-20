@@ -9,10 +9,18 @@ repository with the current machine:
 # ---------- bash ---------- #
 
 bash -n ./zdotfiles
+PYTHONDONTWRITEBYTECODE=1 python3 tests/local-extension.py
 node .vscode/extensions/znnn.focused-pane-resizer-0.1.0/test.js
 ./zdotfiles verify
 git diff --check
 ```
+
+The Python integration check requires Python 3 and `code`. It installs the
+local VSIX in temporary extension and user-data directories and checks repair
+of stale files, removal markers, and missing registration. It also exercises
+setup/verify, repeated setup, dry runs, extension skipping, editor selection,
+and alternate home directories. Marketplace listings are stubbed in the
+entry-point checks so the tests do not install Marketplace extensions.
 
 Validate JSON files with `jq` when it is available:
 
