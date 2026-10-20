@@ -249,7 +249,58 @@ verify_system_settings() {
     fi
 }
 
+nvim_preflight() {
+    local missing=false executable version
+    if [[ ${NVIM_APPNAME:-nvim} != nvim ]]; then
+        note 'unsupported NVIM_APPNAME: this installer deploys the nvim configuration'
+        return 1
+    fi
+    if [[ ${XDG_CONFIG_HOME:-$HOME/.config} != "$HOME/.config" ]]; then
+        note 'unsupported XDG_CONFIG_HOME: this installer deploys to ~/.config'
+        return 1
+    fi
+    for executable in nvim git cc curl tar rg rust-analyzer basedpyright-langserver; do
+        if ! command -v "$executable" >/dev/null 2>&1; then
+            note "missing    Neovim dependency: $executable"
+            missing=true
+        fi
+    done
+    if command -v rust-analyzer >/dev/null 2>&1 && ! rust-analyzer --version >/dev/null 2>&1; then
+        note 'missing    rust-analyzer toolchain component (run rustup component add rust-analyzer)'
+        missing=true
+    fi
+    if command -v nvim >/dev/null 2>&1; then
+        version=$(NVIM_LOG_FILE=/dev/null nvim --version)
+        if [[ ! $version =~ NVIM\ v([0-9]+)\.([0-9]+)\.([0-9]+) ]] ||
+            (( BASH_REMATCH[1] == 0 && (BASH_REMATCH[2] < 11 || (BASH_REMATCH[2] == 11 && BASH_REMATCH[3] < 2)) )); then
+            note 'missing    Neovim >= 0.11.2'
+            missing=true
+        fi
+    fi
+    if [[ -n ${WAYLAND_DISPLAY:-} ]]; then
+        if ! command -v wl-copy >/dev/null 2>&1 || ! command -v wl-paste >/dev/null 2>&1; then
+            note 'missing    Wayland clipboard: install wl-clipboard'
+            missing=true
+        fi
+    elif [[ -n ${DISPLAY:-} ]]; then
+        if ! command -v xclip >/dev/null 2>&1 && ! command -v xsel >/dev/null 2>&1; then
+            note 'missing    X11 clipboard: install xclip'
+            missing=true
+        fi
+    else
+        note 'skipped    desktop clipboard check (no graphical session)'
+    fi
+    ! $missing
+}
+
+nvim_runtime() {
+    nvim --headless -u NONE -i NONE -l "$repo_root/scripts/nvim.lua" "$1"
+}
+
 setup() {
+    if [[ $component != vscode && $target_home = ${HOME:-} ]]; then
+        nvim_preflight || die 'Neovim prerequisites are missing (see docs/configuration.md)'
+    fi
     prepare_backup_root
     note "zdotfiles $(<"$version_file") setup -> $target_home"
     if [[ $component != nvim ]]; then
@@ -282,6 +333,15 @@ setup() {
 
     if [[ $component != vscode ]]; then
         for_each_manifest_entry "$nvim_files_manifest" install_file
+        if [[ $target_home != ${HOME:-} ]]; then
+            note 'skipped    Neovim runtime (--home is not current HOME)'
+        elif $dry_run; then
+            note 'would restore Neovim plugins from lazy-lock.json, install parsers, and verify startup'
+        else
+            nvim_runtime setup
+            nvim_runtime parsers
+            nvim_runtime verify
+        fi
     fi
 
     if $backup_used; then
@@ -314,6 +374,13 @@ verify() {
 
     if [[ $component != vscode ]]; then
         for_each_manifest_entry "$nvim_files_manifest" verify_file
+        if [[ $target_home != ${HOME:-} ]]; then
+            note 'skipped    Neovim runtime (--home is not current HOME)'
+        elif ! nvim_preflight; then
+            verify_failed=true
+        elif ! nvim_runtime verify; then
+            verify_failed=true
+        fi
     fi
 
     if $verify_failed; then

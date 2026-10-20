@@ -2,105 +2,157 @@
 
 ## Requirements
 
-Setup requires Linux, Bash, and standard core utilities. It copies editor
-configuration but does not install VS Code or Neovim. The `code` command is
-optional and installs local and Marketplace extensions. Local extension
-installation and verification also require Python 3 (standard library only). GNOME and IBus are optional for
-the desktop keyboard setting.
-
-## Setup Options
-
-Run `./zdotfiles help` for the complete command list. Useful options are:
-
 ```text
---dry-run               Preview setup without changing files
---home PATH             Install below another home directory
---only nvim|vscode       Manage only one editor; omitted means both
---skip-extensions       Skip all VS Code extensions
---skip-system-settings  Skip the GNOME/IBus setting
+Target
+==========
+Ubuntu 26.04 LTS, Bash, and core utilities.
+Install VS Code and Neovim separately; setup reports missing dependencies.
+
+VS Code
+----------
+code + Python 3: local and Marketplace extensions.
+GNOME/IBus: optional desktop shortcut setting.
+Standard ~/.vscode/extensions only; custom profiles and portable installs are unsupported.
+
+Neovim
+----------
+Neovim >= 0.11.2, Git, C compiler, curl, tar, ripgrep,
+rust-analyzer, and basedpyright-langserver.
+Tested on Ubuntu 26.04 with Neovim 0.11.6 and 0.12.5.
+Wayland: wl-clipboard. X11: xclip or xsel. No desktop: clipboard check skipped.
 ```
 
-The same `--only` option works with `verify`. `--only nvim` does not access VS
-Code or GNOME/IBus settings; `--only vscode` does not access Neovim files.
-
-## Managed Files
-
-The repository mirrors paths below `$HOME`. Configuration files are deployed from paths
-listed in [manifest/vscode-files.txt](../manifest/vscode-files.txt) and
-[manifest/nvim-files.txt](../manifest/nvim-files.txt), according to `--only`.
-The local VS Code extension is installed separately through the CLI.
-Setup never removes unrelated files.
-
-When a destination differs from the repository, `setup` moves the original to
-a timestamped backup before installing the new file. For the current user, the
-backup root is:
-
-```text
-${XDG_STATE_HOME:-$HOME/.local/state}/zdotfiles/backups/
-```
-
-When `--home PATH` targets another home directory, backups are stored below
-`PATH/.local/state/zdotfiles/backups/`.
-
-## VS Code
-
-Setup installs the following configuration below the target home:
-
-```text
-.config/Code/User/keybindings.json
-.config/Code/User/settings.json
-```
-
-Setup packages the local `znnn.focused-pane-resizer` extension into a temporary
-VSIX and installs it with `code --install-extension`. The helper uses the
-standard `~/.vscode/extensions` directory and registry; custom VS Code profiles,
-portable installations, and alternative extension directories are not supported.
-It skips an installation that already matches the source, and repairs missing
-registration, removal markers, or outdated contents through the CLI. The old
-copy-only deployment is upgraded through this same installation path.
-
-Extension updates use the VS Code CLI rather than the configuration-file backup
-mechanism above. Run `Developer: Reload Window` in open VS Code windows after
-installation. Marketplace extensions are listed in
-[manifest/vscode-extensions.txt](../manifest/vscode-extensions.txt) and are
-installed with the `code` command.
-
-All VS Code extensions are skipped when `code` is unavailable, when
-`--skip-extensions` is used, or when `--home` does not target the current
-`HOME`. An alternate `--home` deploys configuration files only.
-
-The stored VS Code settings include an absolute wallpaper path below
-`/home/znnn/Pictures/`. Create the same path on another machine or update
-`background.fullscreen.images` after setup.
-
-## Neovim
-
-Setup copies `.config/nvim/init.lua` and `.config/nvim/lazy-lock.json` below
-the target home. It does not install Neovim, plugins, or language servers.
-On first launch, the configuration bootstraps lazy.nvim with Git and downloads
-its plugins; this needs network access. The configuration was tested with
-Neovim 0.12.4.
-
-## GNOME and IBus
-
-When the IBus schema is available, VS Code setup reserves `Super+.` for editor
-shortcuts by keeping the IBus emoji shortcut on `Super+;`. Neovim-only setup
-does not change this system setting.
-
-System settings are skipped when the schema is unavailable, when
-`--skip-system-settings` is used, or when `--home` does not target the current
-`HOME`.
-
-## Verification
-
-`verify` compares every managed file with the repository. For the current
-home, it also checks the local extension registration, removal state, version,
-and packaged contents, plus Marketplace extensions and the IBus setting when
-those tools are available. Extension verification checks installation on disk,
-not activation or keyboard behavior.
+## Setup
 
 ```bash
 # ---------- bash ---------- #
 
+# Preview, install, and verify both editors
+./zdotfiles setup --dry-run
+./zdotfiles setup
 ./zdotfiles verify
+
+# Manage one editor
+./zdotfiles setup --only nvim
+./zdotfiles verify --only nvim
+```
+
+| Option | Effect |
+|---|---|
+| `--only nvim\|vscode` | Select an editor; default is both |
+| `--home PATH` | Deploy configuration to another absolute home path |
+| `--dry-run` | Preview setup without changes |
+| `--skip-extensions` | Skip VS Code extension installation/checks |
+| `--skip-system-settings` | Skip GNOME/IBus changes/checks |
+
+## Files and Backups
+
+```text
+Deployment
+==========
+Manifest paths are relative to $HOME. Unrelated files are retained.
+Changed configuration files are backed up before replacement.
+Extension updates use the VS Code CLI, not file backups.
+
+Backup locations
+----------
+Current home: ${XDG_STATE_HOME:-$HOME/.local/state}/zdotfiles/backups/<timestamp>/
+Other home:   PATH/.local/state/zdotfiles/backups/<timestamp>/
+
+Alternate home
+----------
+--home targeting another user copies configuration only.
+Run setup as that user to install extensions and Neovim plugins/parsers.
+Neovim requires default XDG_CONFIG_HOME and NVIM_APPNAME;
+custom XDG data, state, and cache directories are supported.
+```
+
+Manifests: [VS Code files](../manifest/vscode-files.txt),
+[Neovim files](../manifest/nvim-files.txt),
+[Marketplace extensions](../manifest/vscode-extensions.txt).
+
+## Neovim
+
+```text
+Setup
+==========
+Checks prerequisites, restores plugins to lazy-lock.json commits,
+installs parsers, and loads the configuration headlessly.
+Requires network access; preserves the lockfile and refuses to discard local plugin edits.
+System packages and Rust toolchains are not locked by this repository.
+
+Parsers
+----------
+Lua, Vim, Vim help, Tree-sitter queries, Python, Rust, Bash, JSON.
+The list is maintained in init.lua.
+```
+
+```bash
+# ---------- bash ---------- #
+
+# Prepare Ubuntu 26.04 dependencies
+sudo apt update
+sudo apt install neovim git build-essential curl tar ripgrep python3-venv rustup wl-clipboard xclip
+
+# Skip if rust-analyzer already works on PATH
+rustup toolchain install stable --profile minimal
+rustup component add rust-analyzer --toolchain stable
+# Only if no default toolchain is configured
+rustup default stable
+
+# Skip if basedpyright-langserver is already on PATH
+python3 -m venv "$HOME/.local/share/zdotfiles/venvs/basedpyright"
+"$HOME/.local/share/zdotfiles/venvs/basedpyright/bin/python" -m pip install basedpyright==1.40.2
+mkdir -p "$HOME/.local/bin"
+# Refuses to overwrite an existing command
+ln -s "$HOME/.local/share/zdotfiles/venvs/basedpyright/bin/basedpyright-langserver" "$HOME/.local/bin/basedpyright-langserver"
+
+# Also keep these directories in your shell configuration
+export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
+
+./zdotfiles setup --only nvim
+./zdotfiles verify --only nvim
+```
+
+References: [Ubuntu Neovim package](https://packages.ubuntu.com/neovim),
+[Basedpyright installation](https://docs.basedpyright.com/dev/installation/command-line-and-language-server/).
+
+## VS Code and Desktop
+
+```text
+Extensions
+==========
+Installs/repairs znnn.focused-pane-resizer and Marketplace extensions via code.
+Skipped without code, with --skip-extensions, or for another --home.
+After installation: Developer: Reload Window.
+
+Wallpaper
+----------
+background.fullscreen.images points below /home/znnn/Pictures/.
+Create that path or update the setting on other machines.
+
+IBus
+----------
+VS Code setup moves the emoji shortcut to Super+; to free Super+.
+Skipped without the schema, with --skip-system-settings, for another --home,
+or when managing only Neovim.
+```
+
+## Verification
+
+| Area | Checks |
+|---|---|
+| Files | Match repository contents |
+| Neovim | Dependencies, plugin commits, parser loading/highlighting, config errors |
+| VS Code | Local extension registration/content/version/removal state; Marketplace installation |
+| IBus | Emoji shortcut, when available |
+
+```text
+Limits
+==========
+A failed check returns a nonzero exit status.
+Neovim verification does not download plugins or parsers.
+Runtime checks apply to the current home only.
+Headless checks do not test clipboard transfer or LSP attachment.
+VS Code checks installation, not activation or keyboard behavior.
 ```

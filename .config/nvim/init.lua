@@ -402,24 +402,10 @@ vim.api.nvim_create_autocmd("LspProgress", {
   end,
 })
 
--- Plugin manager
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local result = vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "--branch=stable",
-    "https://github.com/folke/lazy.nvim.git",
-    lazypath,
-  })
-  if vim.v.shell_error ~= 0 then
-    error("Could not install lazy.nvim:\n" .. result)
-  end
-end
-vim.opt.rtp:prepend(lazypath)
+-- Parsers provisioned and checked by zdotfiles setup/verify.
+vim.g.zdotfiles_parsers = { "lua", "vim", "vimdoc", "query", "python", "rust", "bash", "json" }
 
-require("lazy").setup({
+local plugins = {
   {
     "sonph/onehalf",
     lazy = false,
@@ -736,7 +722,33 @@ require("lazy").setup({
       require("nvim-treesitter.configs").setup(opts)
     end,
   },
-}, {
-  checker = { enabled = true, notify = false },
-  change_detection = { notify = false },
+}
+
+-- The installer reads the same specs without loading potentially incompatible plugins.
+if vim.g.zdotfiles_collect_plugins then
+  return plugins
+end
+
+-- Plugin manager
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  assert(not vim.g.zdotfiles_verify, "lazy.nvim is missing; run zdotfiles setup --only nvim")
+  local result = vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "--branch=stable",
+    "https://github.com/folke/lazy.nvim.git",
+    lazypath,
+  })
+  if vim.v.shell_error ~= 0 then
+    error("Could not install lazy.nvim:\n" .. result)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup(plugins, {
+  install = { missing = not vim.g.zdotfiles_verify },
+  checker = { enabled = not vim.g.zdotfiles_verify, notify = false },
+  change_detection = { enabled = not vim.g.zdotfiles_verify, notify = false },
 })

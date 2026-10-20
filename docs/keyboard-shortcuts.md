@@ -1,11 +1,9 @@
 # Keyboard Shortcuts
 
-`Super` is represented as `meta` in VS Code's keybindings file.
-
 ## VS Code
 
 | Shortcut | Action |
-| --- | --- |
+|---|---|
 | `Alt+K` / `Alt+J` | Move the current line up or down |
 | `Ctrl+0` | Switch focus between the editor and primary sidebar |
 | `Ctrl+B` | Toggle the primary sidebar |
@@ -16,47 +14,44 @@
 | `Super+W` | Close the focused editor tab |
 | `Ctrl+D` in VSCodeVim Visual mode | Add the next matching selection |
 
-Sidebar resizing temporarily focuses the sidebar, performs one resize, and
-restores the previous editor, terminal, panel, or auxiliary-bar focus. The
-local extension prevents overlapping key-repeat operations from resizing the
-wrong editor group.
+```text
+Notes
+==========
+Super is meta in VS Code keybindings.
+Sidebar resizing restores the previous focus; repeated operations are serialized.
+```
 
 ## VSCodeVim
 
 | Shortcut | Action |
-| --- | --- |
+|---|---|
 | `kj` in Insert mode | Return to Normal mode |
 | `Ctrl+J` / `Ctrl+K` | Move down or up five lines in Normal and Visual modes |
 | `K` in Normal mode | Show editor hover information |
 | `Ctrl+P` in Normal mode | Open Quick Open |
 | `y` | Yank to the system clipboard |
 
-Native editor copy bindings for `Ctrl+C` and `Ctrl+Insert` are removed while a
-text input has focus. Terminal copy shortcuts are unaffected.
-
-### Multiple Selections
-
-Select text in Visual mode, then press `Ctrl+D` repeatedly to add matching
-selections using VS Code's default `editor.action.addSelectionToNextFindMatch`
-command.
-
 ```text
+Copy
+==========
+Ctrl+C and Ctrl+Insert native copy bindings are removed in text inputs.
+Terminal copy shortcuts are unchanged.
+
+Multiple selections
+----------
 v + motion  Select text
 Ctrl+D      Add the next matching selection
 c           Replace every selection and enter Insert mode
 Esc         Leave Insert mode
 Esc         Return to a single cursor
-```
 
-`Ctrl+D` retains its normal Vim half-page scrolling behavior outside Visual
-mode.
+Outside Visual mode, Ctrl+D keeps Vim half-page scrolling.
+```
 
 ## Neovim
 
-The leader key is `\`. These are custom mappings in `.config/nvim/init.lua`:
-
 | Shortcut | Action |
-| --- | --- |
+|---|---|
 | `kj` in Insert mode | Return to Normal mode |
 | `Ctrl+J` / `Ctrl+K` | Move five lines down or up in Normal and Visual modes |
 | `Alt+J` / `Alt+K` | Move the line or selection down or up |
@@ -72,12 +67,20 @@ The leader key is `\`. These are custom mappings in `.config/nvim/init.lua`:
 | `K` / `gd` / `gr` | Show a hint, go to a definition, or find references (LSP) |
 | `[h` / `]h` | Go to the previous or next Git change |
 
-`Ctrl+0` works in Normal, Insert, Visual, and Terminal modes. It opens and
-focuses the sidebar when needed, then returns to the previous editor split
-without closing the sidebar. If that split has closed, it uses another editor
-in the same tab or creates one.
+```text
+Mappings
+==========
+Source: .config/nvim/init.lua. Leader: \
 
-The host terminal must send `Ctrl+0` as a distinct key, such as CSI-u
-`ESC [ 48 ; 5 u`. zter forwards the physical top-row zero key this way across
-US and Thai Kedmanee layouts unless a configured zter shortcut consumes it.
-Neovim receives `Super` shortcuts only when the host terminal forwards them.
+Sidebar focus
+----------
+Ctrl+0 works in Normal, Insert, Visual, and Terminal modes.
+Opens/focuses the sidebar, then returns to the previous editor split.
+If that split closed, selects another editor in the tab or creates one.
+
+Terminal support
+----------
+The host must forward Ctrl+0 distinctly, e.g. CSI-u ESC [ 48 ; 5 u.
+zter forwards top-row zero across US/Thai Kedmanee layouts unless a shortcut consumes it.
+Super mappings also require host-terminal forwarding.
+```

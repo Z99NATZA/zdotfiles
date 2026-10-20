@@ -96,8 +96,9 @@ with tempfile.TemporaryDirectory(prefix='zdotfiles-setup-test-') as temporary:
     previous_log = log.read_text()
     run('setup', '--only', 'vscode', '--skip-extensions')
     run('verify', '--only', 'vscode', '--skip-extensions')
-    run('setup', '--only', 'nvim')
-    run('verify', '--only', 'nvim')
+    nvim_home = root / 'nvim-home'
+    run('setup', '--only', 'nvim', '--home', str(nvim_home))
+    run('verify', '--only', 'nvim', '--home', str(nvim_home))
     alternate_home = root / 'alternate-home'
     run('setup', '--only', 'vscode', '--home', str(alternate_home))
     run('verify', '--only', 'vscode', '--home', str(alternate_home))

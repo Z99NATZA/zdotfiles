@@ -2,52 +2,59 @@
 
 ## Checks
 
-Validate the installer, test the local VS Code extension, and compare the
-repository with the current machine:
-
 ```bash
 # ---------- bash ---------- #
 
+# Installer syntax and whitespace
 bash -n ./zdotfiles
+git diff --check
+
+# VS Code extension and installer integration
 PYTHONDONTWRITEBYTECODE=1 python3 tests/local-extension.py
 node .vscode/extensions/znnn.focused-pane-resizer-0.1.0/test.js
+
+# Neovim integration in an isolated home
+PYTHONDONTWRITEBYTECODE=1 python3 tests/nvim.py
+
+# Compare the active installation with the repository
 ./zdotfiles verify
-git diff --check
-```
 
-The Python integration check requires Python 3 and `code`. It installs the
-local VSIX in temporary extension and user-data directories and checks repair
-of stale files, removal markers, and missing registration. It also exercises
-setup/verify, repeated setup, dry runs, extension skipping, editor selection,
-and alternate home directories. Marketplace listings are stubbed in the
-entry-point checks so the tests do not install Marketplace extensions.
-
-Validate JSON files with `jq` when it is available:
-
-```bash
-# ---------- bash ---------- #
-
+# Strict JSON; requires jq
 jq empty .config/Code/User/keybindings.json
 jq empty .vscode/extensions/znnn.focused-pane-resizer-0.1.0/package.json
 jq empty .config/nvim/lazy-lock.json
-```
 
-When Neovim is installed, check the Lua config without loading plugins:
-
-```bash
+# Lua syntax without loading plugins
 nvim --headless -u NONE -c "lua assert(loadfile('.config/nvim/init.lua'))" -c 'qa!'
 ```
 
-`settings.json` is JSON with Comments and may include trailing commas, so it
-is not expected to pass a strict JSON parser unchanged.
+| Suite | Requirements | Coverage |
+|---|---|---|
+| VS Code integration | Python 3, `code` | VSIX repair, setup/verify, repeat setup, dry run, skip options, editor selection, alternate home |
+| Neovim integration | Python 3, Neovim dependencies, network | Clean/repeat setup, dry run, commit drift/repair, missing parser, config errors |
+
+```text
+Isolation
+==========
+VS Code tests use temporary extension/user-data directories and stub Marketplace listings.
+Neovim tests use a temporary home; the active installation is untouched.
+
+JSON
+----------
+settings.json uses JSON with Comments; do not validate it as strict JSON.
+```
 
 ## Maintenance
 
-- Keep live files and their repository copies synchronized.
-- Add deployed files to the relevant
-  [VS Code](../manifest/vscode-files.txt) or
-  [Neovim](../manifest/nvim-files.txt) manifest.
-- Add Marketplace extensions to
-  [manifest/vscode-extensions.txt](../manifest/vscode-extensions.txt).
-- Run `setup --dry-run` before applying changes on another machine.
-- Run the extension tests after changing pane or sidebar resize behavior.
+```text
+Workflow
+==========
+Keep deployed files and repository copies synchronized.
+Update manifests when adding managed files or Marketplace extensions.
+Preview setup before deploying to another machine.
+Run extension tests after changing pane/sidebar resizing.
+```
+
+References: [Dependencies](configuration.md), [Docs format](docs-format-guide.md),
+[VS Code files](../manifest/vscode-files.txt), [Neovim files](../manifest/nvim-files.txt),
+[Extensions](../manifest/vscode-extensions.txt).
