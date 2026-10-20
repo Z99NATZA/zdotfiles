@@ -6,7 +6,7 @@
 Target
 ==========
 Ubuntu 26.04 LTS, Bash, and core utilities.
-Install VS Code separately. Neovim setup installs missing dependencies automatically.
+Install editor packages separately. Neovim setup only uses existing dependencies.
 
 VS Code
 ----------
@@ -16,10 +16,10 @@ Standard ~/.vscode/extensions only; custom profiles and portable installs are un
 
 Neovim
 ----------
-Neovim >= 0.11.2, Git, C compiler, curl, tar, ripgrep,
-rust-analyzer, and basedpyright-langserver.
+Required: Neovim >= 0.11.2, Git, C compiler, curl, tar.
+Optional: ripgrep, rust-analyzer, basedpyright-langserver, clipboard tools.
 Tested on Ubuntu 26.04 with Neovim 0.11.6 and 0.12.5.
-Wayland: wl-clipboard. X11: xclip or xsel. No desktop: clipboard check skipped.
+Wayland: wl-clipboard. X11: xclip or xsel. Missing clipboard tools do not block setup.
 ```
 
 ## Setup
@@ -62,7 +62,7 @@ Other home:   PATH/.local/state/zdotfiles/backups/<timestamp>/
 Alternate home
 ----------
 --home targeting another user copies configuration only.
-Run setup as that user to install dependencies, extensions, and Neovim plugins/parsers.
+Prepare dependencies separately, then run setup as that user for extensions and Neovim plugins/parsers.
 Neovim requires default XDG_CONFIG_HOME and NVIM_APPNAME;
 custom XDG data, state, and cache directories are supported.
 ```
@@ -76,7 +76,7 @@ Manifests: [VS Code files](../manifest/vscode-files.txt),
 ```text
 Setup
 ==========
-Installs missing prerequisites on Ubuntu 26.04, restores plugins to lazy-lock.json commits,
+Checks required programs, restores plugins to lazy-lock.json commits,
 installs parsers, and loads the configuration headlessly.
 Requires network access; preserves the lockfile and refuses to discard local plugin edits.
 System packages and Rust toolchains are not locked by this repository.
@@ -90,34 +90,34 @@ The list is maintained in init.lua.
 ```bash
 # ---------- bash ---------- #
 
-# Preview dependency installation without changes or sudo
+# Preview configuration and runtime setup
 ./zdotfiles setup --only nvim --dry-run
 
-# Install missing dependencies, config, plugins, and parsers
-# sudo may prompt for Ubuntu package installation; run as your normal user
+# Set up config, plugins, and parsers as your normal user
 make setup-nvim
 
-# Check only; never install dependencies
+# Verify files, required dependencies, and runtime
 ./zdotfiles verify --only nvim
 ```
 
 ```text
-Dependency installation
+Dependencies
 ==========
-Existing commands are reused. apt-get installs only missing system packages;
-Neovim below 0.11.2 is upgraded through apt when possible.
-Apt or language-server installation failure stops before config deployment.
-Other operating systems require manually installed dependencies.
+Setup never invokes sudo, apt, or language-server installers.
+Missing required programs stop setup before config deployment, including dry runs.
+Missing optional tools produce notices; setup and verify continue.
+Rust/Python LSP is enabled only when its server is available.
+A rustup proxy without a working rust-analyzer is treated as unavailable.
 
-Language servers
+Existing managed tools
 ----------
-Missing rust-analyzer: install the stable Rust toolchain/component and a launcher
-that selects stable without replacing an existing default toolchain.
-Missing basedpyright-langserver: install basedpyright 1.40.2 in a Python venv.
-Managed tools live under ${XDG_DATA_HOME:-$HOME/.local/share}/zdotfiles/.
-Neovim and the installer add the managed bin directory to their own PATH;
-no shell profile changes or manual PATH export are needed, including over SSH.
+Tools installed by earlier versions remain under
+${XDG_DATA_HOME:-$HOME/.local/share}/zdotfiles/.
+Neovim and the installer include that bin directory in their own PATH.
+No installed tools are removed and no shell profiles are changed.
 ```
+
+Package commands: [README](../README.md).
 
 References: [Ubuntu Neovim package](https://packages.ubuntu.com/neovim),
 [Basedpyright installation](https://docs.basedpyright.com/dev/installation/command-line-and-language-server/).

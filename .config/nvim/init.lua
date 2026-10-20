@@ -368,8 +368,16 @@ vim.lsp.config("basedpyright", {
 -- Load and enable inlay hints before the language server attaches so its first
 -- didOpen notification is not missed.
 vim.lsp.inlay_hint.enable(true)
-vim.lsp.enable("rust_analyzer")
-vim.lsp.enable("basedpyright")
+-- Language servers are optional on servers used only for editing files.
+if vim.fn.executable("rust-analyzer") == 1 then
+  local rust_analyzer = vim.system({ "rust-analyzer", "--version" }, { text = true }):wait()
+  if rust_analyzer.code == 0 then
+    vim.lsp.enable("rust_analyzer")
+  end
+end
+if vim.fn.executable("basedpyright-langserver") == 1 then
+  vim.lsp.enable("basedpyright")
+end
 
 -- Refresh again after a language server has indexed the workspace. Its first
 -- inlay-hint response can be empty while project loading is still in progress.

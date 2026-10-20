@@ -264,29 +264,28 @@ nvim_preflight() {
     local missing=false executable
     nvim_environment_valid || return 1
     nvim_dependency_paths
-    for executable in nvim git cc curl tar rg rust-analyzer basedpyright-langserver; do
+    for executable in nvim git cc curl tar; do
         if ! command -v "$executable" >/dev/null 2>&1; then
             note "missing    Neovim dependency: $executable"
             missing=true
         fi
     done
-    if command -v rust-analyzer >/dev/null 2>&1 && ! rust-analyzer --version >/dev/null 2>&1; then
-        note 'missing    rust-analyzer toolchain component (run rustup component add rust-analyzer)'
-        missing=true
+    command -v rg >/dev/null 2>&1 || note 'optional   rg unavailable; text search is limited'
+    if ! command -v rust-analyzer >/dev/null 2>&1 || ! rust-analyzer --version >/dev/null 2>&1; then
+        note 'optional   rust-analyzer unavailable; Rust LSP disabled'
     fi
+    command -v basedpyright-langserver >/dev/null 2>&1 || note 'optional   basedpyright-langserver unavailable; Python LSP disabled'
     if ! nvim_version_supported; then
         note 'missing    Neovim >= 0.11.2'
         missing=true
     fi
     if [[ -n ${WAYLAND_DISPLAY:-} ]]; then
         if ! command -v wl-copy >/dev/null 2>&1 || ! command -v wl-paste >/dev/null 2>&1; then
-            note 'missing    Wayland clipboard: install wl-clipboard'
-            missing=true
+            note 'optional   Wayland clipboard unavailable; install wl-clipboard if needed'
         fi
     elif [[ -n ${DISPLAY:-} ]]; then
         if ! command -v xclip >/dev/null 2>&1 && ! command -v xsel >/dev/null 2>&1; then
-            note 'missing    X11 clipboard: install xclip'
-            missing=true
+            note 'optional   X11 clipboard unavailable; install xclip or xsel if needed'
         fi
     else
         note 'skipped    desktop clipboard check (no graphical session)'
@@ -300,12 +299,7 @@ nvim_runtime() {
 
 setup() {
     if [[ $component != vscode && $target_home = ${HOME:-} ]]; then
-        nvim_environment_valid || die 'unsupported Neovim configuration location'
-        nvim_dependency_paths
-        nvim_setup_dependencies
-        if ! $dry_run; then
-            nvim_preflight || die 'Neovim prerequisites are still missing (see docs/configuration.md)'
-        fi
+        nvim_preflight || die 'required Neovim dependencies are missing; see README.md (no packages were installed)'
     fi
     prepare_backup_root
     note "zdotfiles $(<"$version_file") setup -> $target_home"

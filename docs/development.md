@@ -13,8 +13,11 @@ git diff --check
 PYTHONDONTWRITEBYTECODE=1 python3 tests/local-extension.py
 node .vscode/extensions/znnn.focused-pane-resizer-0.1.0/test.js
 
-# Dependency installation with fake package managers (Ubuntu 26.04)
+# Required/optional dependency checks; package installers are forbidden
 PYTHONDONTWRITEBYTECODE=1 python3 tests/nvim-dependencies.py
+
+# Load config without language servers, including a broken rustup proxy
+nvim --headless -u NONE -i NONE -l tests/nvim-optional.lua
 
 # Neovim integration in an isolated home
 PYTHONDONTWRITEBYTECODE=1 python3 tests/nvim.py
@@ -34,14 +37,14 @@ nvim --headless -u NONE -c "lua assert(loadfile('.config/nvim/init.lua'))" -c 'q
 | Suite | Requirements | Coverage |
 |---|---|---|
 | VS Code integration | Python 3, `code` | VSIX repair, setup/verify, repeat setup, dry run, skip options, editor selection, alternate home |
-| Dependency provisioning | Python 3, Ubuntu 26.04 | Dry run, read-only verify, failed install, repeat setup, clipboard, alternate home |
+| Dependency checks | Python 3, Bash | No package installation; required/optional tools, old Neovim, dry run, clipboard, alternate home |
 | Neovim integration | Python 3, Neovim dependencies, network | Clean/repeat setup, dry run, commit drift/repair, missing parser, config errors |
 
 ```text
 Isolation
 ==========
 VS Code tests use temporary extension/user-data directories and stub Marketplace listings.
-Dependency tests use fake package managers; they never invoke real sudo or downloads.
+Dependency tests fail if setup/verify invokes any package installer.
 Neovim tests use a temporary home; preinstall dependencies before running the real integration suite.
 
 JSON
