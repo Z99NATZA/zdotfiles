@@ -2,7 +2,7 @@
 
 - [Configuration](configuration.md) — managed files, extensions, backups, and
   system settings
-- [Keyboard shortcuts](keyboard-shortcuts.md) — VS Code, VSCodeVim, and Neovim bindings
+- [Keyboard shortcuts](keyboard-shortcuts.md) — GNOME, VS Code, VSCodeVim, and Neovim bindings
 - [Versioning](versioning.md) — releases and historical configurations
 - [Development](development.md) — validation and maintenance workflow
 

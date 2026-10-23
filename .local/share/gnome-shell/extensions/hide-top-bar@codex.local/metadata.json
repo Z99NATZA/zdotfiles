@@ -1,0 +1,7 @@
+{
+    "uuid": "hide-top-bar@codex.local",
+    "name": "Hide Top Bar",
+    "description": "Hide the default GNOME top bar on the desktop and in Overview.",
+    "shell-version": ["50"],
+    "version": 1
+}

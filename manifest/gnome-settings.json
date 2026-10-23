@@ -1,0 +1,194 @@
+{
+  "settings": [
+    {
+      "schema": "org.gnome.desktop.interface",
+      "key": "accent-color",
+      "value": "'purple'"
+    },
+    {
+      "schema": "org.gnome.desktop.interface",
+      "key": "color-scheme",
+      "value": "'prefer-dark'"
+    },
+    {
+      "schema": "org.gnome.desktop.interface",
+      "key": "cursor-theme",
+      "value": "'Adwaita'"
+    },
+    {
+      "schema": "org.gnome.desktop.interface",
+      "key": "gtk-theme",
+      "value": "'Yaru-purple-dark'"
+    },
+    {
+      "schema": "org.gnome.desktop.interface",
+      "key": "icon-theme",
+      "value": "'Yaru-purple-dark'"
+    },
+    {
+      "schema": "org.gnome.desktop.interface",
+      "key": "font-name",
+      "value": "'JetBrainsMono Nerd Font 11'"
+    },
+    {
+      "schema": "org.gnome.desktop.interface",
+      "key": "document-font-name",
+      "value": "'JetBrainsMono Nerd Font 12'"
+    },
+    {
+      "schema": "org.gnome.desktop.interface",
+      "key": "monospace-font-name",
+      "value": "'JetBrainsMono Nerd Font Mono 11'"
+    },
+    {
+      "schema": "org.gnome.desktop.wm.preferences",
+      "key": "titlebar-font",
+      "value": "'JetBrainsMono Nerd Font Bold 11'"
+    },
+    {
+      "schema": "org.gnome.desktop.input-sources",
+      "key": "sources",
+      "value": "[('xkb', 'us'), ('xkb', 'th')]"
+    },
+    {
+      "schema": "org.gnome.desktop.input-sources",
+      "key": "xkb-options",
+      "value": "['grp:ctrl_shift_toggle']"
+    },
+    {
+      "schema": "org.gnome.desktop.peripherals.keyboard",
+      "key": "delay",
+      "value": "uint32 200"
+    },
+    {
+      "schema": "org.gnome.desktop.peripherals.keyboard",
+      "key": "repeat-interval",
+      "value": "uint32 9"
+    },
+    {
+      "schema": "org.gnome.desktop.peripherals.mouse",
+      "key": "speed",
+      "value": "-0.6260869565217391"
+    },
+    {
+      "schema": "org.gnome.desktop.session",
+      "key": "idle-delay",
+      "value": "uint32 3600"
+    },
+    {
+      "schema": "org.gnome.desktop.wm.keybindings",
+      "key": "switch-to-workspace-left",
+      "value": "['<Super>n']",
+      "op": "append",
+      "remove": [
+        "<Super>b"
+      ]
+    },
+    {
+      "schema": "org.gnome.desktop.wm.keybindings",
+      "key": "switch-to-workspace-right",
+      "value": "['<Super>m']",
+      "op": "append",
+      "remove": [
+        "<Super>n"
+      ]
+    },
+    {
+      "schema": "org.gnome.desktop.wm.keybindings",
+      "key": "minimize",
+      "value": "['<Super>h']",
+      "op": "remove"
+    },
+    {
+      "schema": "org.gnome.shell.keybindings",
+      "key": "focus-active-notification",
+      "value": "['<Super>n']",
+      "op": "remove"
+    },
+    {
+      "schema": "org.gnome.shell.keybindings",
+      "key": "toggle-message-tray",
+      "value": "['<Super>m']",
+      "op": "remove"
+    },
+    {
+      "schema": "org.gnome.shell.keybindings",
+      "key": "show-screenshot-ui",
+      "value": "['<Super><Shift>s']",
+      "op": "append"
+    },
+    {
+      "schema": "org.gnome.mutter.keybindings",
+      "key": "toggle-tiled-left",
+      "value": "['<Super>Left']",
+      "op": "remove"
+    },
+    {
+      "schema": "org.gnome.mutter.keybindings",
+      "key": "toggle-tiled-right",
+      "value": "['<Super>Right']",
+      "op": "remove"
+    },
+    {
+      "schema": "org.gnome.settings-daemon.plugins.media-keys",
+      "key": "screensaver",
+      "value": "['<Super>l']",
+      "op": "remove"
+    },
+    {
+      "schema": "org.gnome.settings-daemon.plugins.media-keys",
+      "key": "rotate-video-lock-static",
+      "value": "['<Super>o']",
+      "op": "remove"
+    },
+    {
+      "schema": "org.gnome.mutter",
+      "key": "overlay-key",
+      "value": "''"
+    },
+    {
+      "schema": "org.gnome.mutter",
+      "key": "edge-tiling",
+      "value": "false"
+    },
+    {
+      "schema": "org.gnome.settings-daemon.plugins.color",
+      "key": "night-light-schedule-automatic",
+      "value": "false"
+    },
+    {
+      "schema": "org.gnome.settings-daemon.plugins.power",
+      "key": "idle-dim",
+      "value": "false"
+    },
+    {
+      "schema": "org.gnome.settings-daemon.plugins.power",
+      "key": "sleep-inactive-ac-type",
+      "value": "'nothing'"
+    },
+    {
+      "schema": "org.gnome.settings-daemon.plugins.power",
+      "key": "sleep-inactive-battery-timeout",
+      "value": "0"
+    },
+    {
+      "schema": "org.gnome.settings-daemon.plugins.power",
+      "key": "sleep-inactive-battery-type",
+      "value": "'nothing'"
+    },
+    {
+      "schema": "org.gnome.shell",
+      "key": "favorite-apps",
+      "value": "[]"
+    },
+    {
+      "schema": "org.gnome.shell.extensions.ding",
+      "key": "show-home",
+      "value": "false"
+    }
+  ],
+  "extensions": [
+    "super-o-search@codex.local",
+    "hide-top-bar@codex.local"
+  ]
+}

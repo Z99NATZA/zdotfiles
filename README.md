@@ -5,7 +5,7 @@
 ```bash
 # ---------- bash ---------- #
 
-# Neovim, VS Code
+# Neovim, VS Code, GNOME
 make setup-all
 ./zdotfiles verify
 
@@ -17,6 +17,11 @@ make setup-nvim
 # VS Code
 make setup-vscode
 ./zdotfiles verify --only vscode
+
+# GNOME settings and custom extensions
+./zdotfiles setup --only gnome --dry-run
+make setup-gnome
+./zdotfiles verify --only gnome
 ```
 
 [Configuration](docs/configuration.md)

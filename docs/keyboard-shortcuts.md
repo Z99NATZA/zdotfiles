@@ -1,5 +1,31 @@
 # Keyboard Shortcuts
 
+## GNOME
+
+| Shortcut | Action |
+|---|---|
+| `Super+N` / `Super+M` | Switch to the workspace on the left / right |
+| `Super+O` | Open or close Overview in window-selection mode |
+| `J` / `K` in Overview | Select the next / previous window |
+| Arrow keys in Overview | Select a window in that direction |
+| `I` in Overview | Focus search |
+| `Enter` in Overview | Open the selected window or first matching app |
+| `Escape` in Overview | Close Overview |
+| `Print` / `Super+Shift+S` | Open the screenshot UI |
+| `Ctrl+Shift` | Switch between English and Thai input |
+
+```text
+Desktop profile
+==========
+Super alone does not open Overview. Super+H, Super+L, and Super+Left/Right
+are freed from their GNOME minimize, lock, and tiling actions for editor use.
+Super+M is freed from the notification tray; Super+V still opens the tray.
+Super+N is freed from notification focus. The old workspace Super+B binding
+on the left and Super+N binding on the right are removed.
+Overview J/K/I use physical keys, so they also work with the Thai layout active.
+Custom Overview behavior requires Super O Search on GNOME Shell 50.
+```
+
 ## VS Code
 
 | Shortcut | Action |

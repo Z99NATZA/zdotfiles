@@ -1,0 +1,9 @@
+{
+  "uuid": "super-o-search@codex.local",
+  "name": "Super O Search",
+  "description": "Bind Super+O to GNOME Shell overview search.",
+  "settings-schema": "org.gnome.shell.extensions.super-o-search",
+  "shell-version": [
+    "50"
+  ]
+}

@@ -26,9 +26,9 @@ Usage:
 
 Options:
   --home PATH             Use PATH as the target home directory
-  --only nvim|vscode       Manage only the selected editor (default: both)
+  --only nvim|vscode|gnome Manage only the selected component (default: all)
   --dry-run               Print setup actions without changing anything
-  --skip-extensions       Skip all VS Code extension installation/checks
+  --skip-extensions       Skip VS Code and GNOME extension installation/checks
   --skip-system-settings  Skip GNOME/IBus settings
   -h, --help              Show this help
 EOF
@@ -52,11 +52,11 @@ parse_options() {
                 shift 2
                 ;;
             --only)
-                (($# >= 2)) || die '--only requires nvim or vscode'
+                (($# >= 2)) || die '--only requires nvim, vscode, or gnome'
                 [[ $component = all ]] || die '--only may be specified only once'
                 case "$2" in
-                    nvim|vscode) component=$2 ;;
-                    *) die "unknown component: $2 (expected nvim or vscode)" ;;
+                    nvim|vscode|gnome) component=$2 ;;
+                    *) die "unknown component: $2 (expected nvim, vscode, or gnome)" ;;
                 esac
                 shift 2
                 ;;
@@ -297,13 +297,27 @@ nvim_runtime() {
     nvim --headless -u NONE -i NONE -l "$repo_root/scripts/nvim.lua" "$1"
 }
 
+gnome_runtime() {
+    local action=$1
+    local -a options=(--home "$target_home" --backup-root "$backup_root")
+    if $skip_extensions && $skip_system_settings; then
+        note 'skipped    GNOME (--skip-extensions and --skip-system-settings)'
+        return
+    fi
+    command -v python3 >/dev/null 2>&1 || die 'python3 is required for GNOME setup/verify'
+    $dry_run && options+=(--dry-run)
+    $skip_extensions && options+=(--skip-extensions)
+    $skip_system_settings && options+=(--skip-system-settings)
+    python3 "$repo_root/scripts/gnome.py" "$action" "${options[@]}"
+}
+
 setup() {
-    if [[ $component != vscode && $target_home = ${HOME:-} ]]; then
+    if [[ $component = all || $component = nvim ]] && [[ $target_home = ${HOME:-} ]]; then
         nvim_preflight || die 'required Neovim dependencies are missing; see README.md (no packages were installed)'
     fi
     prepare_backup_root
     note "zdotfiles $(<"$version_file") setup -> $target_home"
-    if [[ $component != nvim ]]; then
+    if [[ $component = all || $component = vscode ]]; then
         for_each_manifest_entry "$vscode_files_manifest" install_file
 
         if ! $skip_extensions; then
@@ -331,7 +345,7 @@ setup() {
         fi
     fi
 
-    if [[ $component != vscode ]]; then
+    if [[ $component = all || $component = nvim ]]; then
         for_each_manifest_entry "$nvim_files_manifest" install_file
         if [[ $target_home != ${HOME:-} ]]; then
             note 'skipped    Neovim runtime (--home is not current HOME)'
@@ -344,6 +358,10 @@ setup() {
         fi
     fi
 
+    if [[ $component = all || $component = gnome ]]; then
+        gnome_runtime setup
+    fi
+
     if $backup_used; then
         note "backup    $backup_root"
     fi
@@ -351,8 +369,9 @@ setup() {
 
 verify() {
     verify_failed=false
+    prepare_backup_root
     note "zdotfiles $(<"$version_file") verify -> $target_home"
-    if [[ $component != nvim ]]; then
+    if [[ $component = all || $component = vscode ]]; then
         for_each_manifest_entry "$vscode_files_manifest" verify_file
 
         if ! $skip_extensions && [[ $target_home = ${HOME:-} ]]; then
@@ -372,13 +391,19 @@ verify() {
         fi
     fi
 
-    if [[ $component != vscode ]]; then
+    if [[ $component = all || $component = nvim ]]; then
         for_each_manifest_entry "$nvim_files_manifest" verify_file
         if [[ $target_home != ${HOME:-} ]]; then
             note 'skipped    Neovim runtime (--home is not current HOME)'
         elif ! nvim_preflight; then
             verify_failed=true
         elif ! nvim_runtime verify; then
+            verify_failed=true
+        fi
+    fi
+
+    if [[ $component = all || $component = gnome ]]; then
+        if ! gnome_runtime verify; then
             verify_failed=true
         fi
     fi

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.super-o-search" path="/org/gnome/shell/extensions/super-o-search/">
+    <key name="open-search" type="as">
+      <default><![CDATA[['<Super>o']]]></default>
+      <summary>Open overview search</summary>
+      <description>Keyboard shortcut used to focus GNOME Shell overview search.</description>
+    </key>
+  </schema>
+</schemalist>

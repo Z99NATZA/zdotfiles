@@ -1,4 +1,4 @@
-.PHONY: setup-all setup-nvim setup-vscode
+.PHONY: setup-all setup-nvim setup-vscode setup-gnome
 
 setup-all:
 	./zdotfiles setup
@@ -8,3 +8,6 @@ setup-nvim:
 
 setup-vscode:
 	./zdotfiles setup --only vscode
+
+setup-gnome:
+	./zdotfiles setup --only gnome
