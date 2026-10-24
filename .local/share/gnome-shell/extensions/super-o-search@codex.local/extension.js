@@ -102,7 +102,7 @@ export default class SuperOSearchExtension extends Extension {
                 return Clutter.EVENT_STOP;
             this._enterHeld = true;
             if (this._mode === 'search') {
-                if (!this._activateFirstSearchApp())
+                if (!this._activateSearchApp())
                     this._focusWindows();
             } else {
                 const preview = this._focusedPreview();
@@ -146,7 +146,7 @@ export default class SuperOSearchExtension extends Extension {
         return Clutter.EVENT_PROPAGATE;
     }
 
-    _activateFirstSearchApp() {
+    _activateSearchApp() {
         const query = Main.overview.searchEntry.get_text().trim();
         if (!query)
             return false;
@@ -160,12 +160,30 @@ export default class SuperOSearchExtension extends Extension {
             display._terms.join(' ') !== results.terms.join(' '))
             return false;
 
-        const first = display.getFirstResult();
+        let target = global.stage.key_focus;
+        if (!target || !display.contains(target)) {
+            target = display.getFirstResult();
+        } else {
+            while (target && target !== display && !target.app)
+                target = target.get_parent();
+        }
         // The applications provider also returns system actions, such as logout.
-        if (!first?.app)
+        if (!target?.app)
             return false;
 
-        first.activate();
+        const app = target.app;
+        const hasNewWindowAction = app.app_info?.list_actions?.().includes('new-window');
+        const runningAppSupportsNewWindow =
+            app.state === Shell.AppState.RUNNING && app.can_open_new_window();
+        if (hasNewWindowAction || runningAppSupportsNewWindow) {
+            target.animateLaunch?.();
+            // Shell uses the app's new-window desktop action when present.
+            // For zter, that action starts a separate --standalone process.
+            app.open_new_window(-1);
+            Main.overview.hide();
+        } else {
+            target.activate();
+        }
         return true;
     }
 

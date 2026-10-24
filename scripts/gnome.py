@@ -159,10 +159,15 @@ def manage_settings(args, manifest, destination, backup):
     items = list(manifest['settings'])
     if not args.skip_extensions:
         uuids = repr(manifest['extensions'])
+        conflicts = manifest.get('extension_conflicts', [])
         items.extend([
-            {'schema': 'org.gnome.shell', 'key': 'enabled-extensions', 'op': 'append', 'value': uuids},
-            {'schema': 'org.gnome.shell', 'key': 'disabled-extensions', 'op': 'remove', 'value': uuids},
+            {'schema': 'org.gnome.shell', 'key': 'enabled-extensions', 'op': 'append',
+             'value': uuids, 'remove': conflicts},
+            {'schema': 'org.gnome.shell', 'key': 'disabled-extensions', 'op': 'append',
+             'value': repr(conflicts), 'remove': manifest['extensions']},
             {'schema': 'org.gnome.shell', 'key': 'disable-user-extensions', 'value': 'false'},
+            {'schema': 'org.gnome.shell.keybindings', 'key': 'toggle-overview',
+             'op': 'remove', 'value': "['<Super>o']"},
             {'schema': 'org.gnome.shell.extensions.super-o-search', 'key': 'open-search', 'value': "['<Super>o']"},
         ])
     plan = []

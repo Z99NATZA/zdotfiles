@@ -19,6 +19,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 tests/nvim-dependencies.py
 # GNOME deployment with isolated home, XDG paths, D-Bus and dconf database
 PYTHONDONTWRITEBYTECODE=1 python3 tests/gnome.py
 
+# Overview app launching without changing the desktop session
+node --experimental-vm-modules tests/gnome-overview.js
+
 # Load config without language servers, including a broken rustup proxy
 nvim --headless -u NONE -i NONE -l tests/nvim-optional.lua
 
@@ -43,6 +46,7 @@ nvim --headless -u NONE -c "lua assert(loadfile('.config/nvim/init.lua'))" -c 'q
 | Dependency checks | Python 3, Bash | No package installation; required/optional tools, old Neovim, dry run, clipboard, alternate home |
 | Neovim integration | Python 3, Neovim dependencies, network | Clean/repeat setup, dry run, commit drift/repair, missing parser, config errors |
 | GNOME integration | Python 3 + PyGObject, GNOME 50, D-Bus, dconf, glib-compile-schemas | Dry run, verify, shortcut/extension merging, workspace shortcut migration, notification conflicts, backups, drift repair, skip flags, alternate home, version guard |
+| GNOME Overview | Node.js with VM modules | New-window desktop actions, running apps, normal activation fallback, selected results, stale search, held Enter |
 
 ```text
 Isolation
@@ -51,6 +55,8 @@ VS Code tests use temporary extension/user-data directories and stub Marketplace
 Dependency tests fail if setup/verify invokes any package installer.
 GNOME tests use a separate session bus and temporary dconf database, leaving
 the desktop session unchanged. They do not launch or exercise the Shell UI.
+Overview tests load the shipped extension with stubbed Shell actors/apps;
+they do not prove that GNOME loaded it or that an app's desktop action works.
 Neovim tests use a temporary home; preinstall dependencies before running the real integration suite.
 
 JSON

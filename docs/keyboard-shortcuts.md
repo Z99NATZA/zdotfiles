@@ -9,7 +9,7 @@
 | `J` / `K` in Overview | Select the next / previous window |
 | Arrow keys in Overview | Select a window in that direction |
 | `I` in Overview | Focus search |
-| `Enter` in Overview | Open the selected window or first matching app |
+| `Enter` in Overview | Open the selected window; in search, open a new app window when supported |
 | `Escape` in Overview | Close Overview |
 | `Print` / `Super+Shift+S` | Open the screenshot UI |
 | `Ctrl+Shift` | Switch between English and Thai input |
@@ -24,6 +24,11 @@ Super+N is freed from notification focus. The old workspace Super+B binding
 on the left and Super+N binding on the right are removed.
 Overview J/K/I use physical keys, so they also work with the Thai layout active.
 Custom Overview behavior requires Super O Search on GNOME Shell 50.
+Search launches the selected app result, or the first app when none is selected.
+Apps with a new-window desktop action, or running apps that support new windows,
+open a new window. For zter, its new-window action runs zter --standalone.
+Other apps use their normal activation behavior. zter's launcher is installed
+by zter itself; zdotfiles does not install or rewrite application launchers.
 ```
 
 ## VS Code

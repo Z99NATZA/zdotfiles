@@ -63,8 +63,9 @@ set_value(wm, 'switch-to-workspace-left', "['<Super>b', '<Alt>F1']")
 set_value(wm, 'switch-to-workspace-right', "['<Super>n', '<Alt>F2']")
 set_value('org.gnome.shell.keybindings', 'toggle-message-tray', "['<Super>m', '<Super>v', '<Alt>F3']")
 set_value('org.gnome.shell.keybindings', 'focus-active-notification', "['<Super>n', '<Alt>F4']")
-set_value(shell, 'enabled-extensions', "['keep@tests.local']")
+set_value(shell, 'enabled-extensions', "['keep@tests.local', 'overview-keys@znnn.local']")
 set_value(shell, 'disabled-extensions', "['super-o-search@codex.local', 'disabled@tests.local']")
+set_value('org.gnome.shell.keybindings', 'toggle-overview', "['<Super>o', '<Alt>F5']")
 set_value(shell, 'disable-user-extensions', 'true')
 set_value('org.gnome.desktop.background', 'picture-uri', "'file:///keep-wallpaper.png'")
 set_value('org.gnome.desktop.interface', 'font-name', "'Existing Font 10'")
@@ -73,6 +74,12 @@ stale.parent.mkdir(parents=True)
 stale.write_text('// existing extension payload\n')
 unrelated = stale.parent / 'keep.txt'
 unrelated.write_text('keep unrelated files\n')
+run('setup', '--dry-run')
+run('verify', success=False)
+assert 'overview-keys@znnn.local' in get_value(shell, 'enabled-extensions')
+assert '<Super>o' in get_value('org.gnome.shell.keybindings', 'toggle-overview')
+assert stale.read_text() == '// existing extension payload\n'
+assert not snapshots(), 'migration preview and verify must remain read-only'
 run('setup')
 run('verify')
 assert get_value(wm, 'switch-to-workspace-left') == "['<Alt>F1', '<Super>n']"
@@ -80,6 +87,9 @@ assert get_value(wm, 'switch-to-workspace-right') == "['<Alt>F2', '<Super>m']"
 assert get_value('org.gnome.shell.keybindings', 'toggle-message-tray') == "['<Super>v', '<Alt>F3']"
 assert get_value('org.gnome.shell.keybindings', 'focus-active-notification') == "['<Alt>F4']"
 assert 'keep@tests.local' in get_value(shell, 'enabled-extensions')
+assert 'overview-keys@znnn.local' not in get_value(shell, 'enabled-extensions')
+assert 'overview-keys@znnn.local' in get_value(shell, 'disabled-extensions')
+assert get_value('org.gnome.shell.keybindings', 'toggle-overview') == "['<Alt>F5']"
 assert uuid not in get_value(shell, 'disabled-extensions')
 assert 'disabled@tests.local' in get_value(shell, 'disabled-extensions')
 assert get_value(shell, 'disable-user-extensions') == 'false'
@@ -92,6 +102,10 @@ accent = next(row for row in snapshot['settings'] if row['key'] == 'accent-color
 assert accent['user_value'] is None, 'backup must distinguish default from explicit override'
 font = next(row for row in snapshot['settings'] if row['key'] == 'font-name')
 assert font['user_value'] == "'Existing Font 10'"
+enabled = next(row for row in snapshot['settings'] if row['key'] == 'enabled-extensions')
+assert 'overview-keys@znnn.local' in enabled['user_value']
+toggle = next(row for row in snapshot['settings'] if row['key'] == 'toggle-overview')
+assert toggle['user_value'] == "['<Super>o', '<Alt>F5']"
 old_file = next(row for row in snapshot['files'] if row['destination'] == str(stale))
 assert Path(old_file['backup']).read_text() == '// existing extension payload\n'
 before = snapshots()
@@ -116,9 +130,13 @@ assert get_value('org.gnome.desktop.interface', 'accent-color') == "'green'"
 assert stale.read_text() != '// stale again\n'
 run('verify', '--skip-system-settings')
 stale.write_text('// keep when skipped\n')
+set_value(shell, 'enabled-extensions', "['keep@tests.local', 'overview-keys@znnn.local']")
+set_value('org.gnome.shell.keybindings', 'toggle-overview', "['<Super>o', '<Alt>F5']")
 run('setup', '--skip-extensions')
 run('verify', '--skip-extensions')
 assert stale.read_text() == '// keep when skipped\n'
+assert 'overview-keys@znnn.local' in get_value(shell, 'enabled-extensions')
+assert '<Super>o' in get_value('org.gnome.shell.keybindings', 'toggle-overview')
 run('verify', '--skip-extensions', '--skip-system-settings')
 
 # Another home receives only files and uses its own conventional data path.

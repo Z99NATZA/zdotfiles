@@ -66,11 +66,6 @@
       "value": "uint32 9"
     },
     {
-      "schema": "org.gnome.desktop.peripherals.mouse",
-      "key": "speed",
-      "value": "-0.6260869565217391"
-    },
-    {
       "schema": "org.gnome.desktop.session",
       "key": "idle-delay",
       "value": "uint32 3600"
@@ -186,6 +181,9 @@
       "key": "show-home",
       "value": "false"
     }
+  ],
+  "extension_conflicts": [
+    "overview-keys@znnn.local"
   ],
   "extensions": [
     "super-o-search@codex.local",

@@ -140,12 +140,13 @@ make setup-gnome
 ```text
 Managed profile
 ==========
-manifest/gnome-settings.json selects 34 deliberate desktop preferences:
+manifest/gnome-settings.json selects 33 deliberate desktop preferences:
 dark/purple appearance, Adwaita cursor, JetBrainsMono Nerd Font, US/Thai input,
-Ctrl+Shift input switching, keyboard repeat, mouse speed, idle/power behavior,
+Ctrl+Shift input switching, keyboard repeat, idle/power behavior,
 window shortcuts, empty pinned apps, and hiding the Home desktop icon.
 Themes: Yaru-purple-dark. Fonts: JetBrainsMono Nerd Font / Nerd Font Mono.
 These resources must already be installed; GNOME may fall back if unavailable.
+Mouse speed is configured separately on each machine and is not managed.
 
 Shortcut lists
 ----------
@@ -158,11 +159,19 @@ Other list settings, such as the chosen input sources, replace that preference.
 Custom extensions
 ----------
 Super O Search: Super+O opens Overview with keyboard window selection.
+Enter on a search app opens a new window when the app exposes a new-window
+desktop action, or when a running app supports new windows. Other apps use
+normal activation. The selected app result takes precedence over the first app.
+Desktop actions remain owned by each app: zter's launcher runs zter --standalone.
 Hide Top Bar: hides the GNOME top bar and releases its reserved screen space.
 Source files live under .local/share/gnome-shell/extensions/ in this repository.
 Enabled extension UUIDs merge with the existing list; unrelated extensions and
-their enabled/disabled state are retained. The master user-extension switch is
-enabled when applying the custom extensions.
+their enabled/disabled state are retained. The conflicting local extension
+overview-keys@znnn.local is disabled; its files remain in place. Super+O is
+removed from GNOME's toggle-overview binding so Super O Search owns that shortcut;
+other toggle-overview shortcuts are preserved. Both migrations are backed up
+and skipped with --skip-extensions or --skip-system-settings.
+The master user-extension switch is enabled when applying the custom extensions.
 
 Lifecycle
 ----------
