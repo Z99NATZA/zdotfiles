@@ -45,7 +45,7 @@ nvim --headless -u NONE -c "lua assert(loadfile('.config/nvim/init.lua'))" -c 'q
 | VS Code integration | Python 3, `code` | VSIX repair, setup/verify, repeat setup, dry run, skip options, editor selection, alternate home |
 | Dependency checks | Python 3, Bash | No package installation; required/optional tools, old Neovim, dry run, clipboard, alternate home |
 | Neovim integration | Python 3, Neovim dependencies, network | Clean/repeat setup, dry run, commit drift/repair, missing parser, config errors |
-| GNOME integration | Python 3 + PyGObject, GNOME 50, D-Bus, dconf, glib-compile-schemas | Dry run, verify, shortcut/extension merging, workspace shortcut migration, notification conflicts, backups, drift repair, skip flags, alternate home, version guard |
+| GNOME integration | Python 3 + PyGObject, GNOME 50, D-Bus, dconf, glib-compile-schemas, fc-pattern | Dry run, verify, shortcut/extension merging, workspace shortcut migration, notification conflicts, backups, drift repair, font fallback order, skip flags, alternate home, version guard |
 | GNOME Overview | Node.js with VM modules | New-window desktop actions, running apps, normal activation fallback, selected results, stale search, held Enter |
 
 ```text

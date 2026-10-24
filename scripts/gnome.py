@@ -11,6 +11,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / '.local/share/gnome-shell/extensions'
 MANIFEST = ROOT / 'manifest/gnome-settings.json'
+FONTCONFIG = Path('fontconfig/conf.d/60-jetbrainsmono-thai.conf')
 
 
 class Backup:
@@ -47,6 +48,41 @@ class Backup:
         self.save()
 
 
+def deploy_file(args, source, target, relative, backup, label):
+    identical = target.is_file() and source.read_bytes() == target.read_bytes()
+    if identical:
+        print(f'{"ok" if args.action == "verify" else "unchanged"}  {label}')
+    elif args.action == 'verify':
+        print(f'different  {label}')
+        return False
+    elif args.dry_run:
+        print(f'would install {label}')
+    else:
+        backup.file(target, relative)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as staged:
+            staged.write(source.read_bytes())
+            staged_path = Path(staged.name)
+        try:
+            staged_path.chmod(source.stat().st_mode & 0o777)
+            staged_path.replace(target)
+        finally:
+            staged_path.unlink(missing_ok=True)
+        print(f'installed  {label}')
+    return True
+
+
+def deploy_fontconfig(args, backup):
+    if args.skip_system_settings:
+        print('skipped    GNOME font fallback (--skip-system-settings)')
+        return True
+    config = args.home / '.config'
+    if args.current_home:
+        config = Path(os.environ.get('XDG_CONFIG_HOME', str(config)))
+    return deploy_file(args, ROOT / '.config' / FONTCONFIG, config / FONTCONFIG,
+                       Path('.config') / FONTCONFIG, backup, 'GNOME font fallback')
+
+
 def extension_files(manifest, destination):
     for uuid in manifest['extensions']:
         for source in sorted((SOURCE / uuid).rglob('*')):
@@ -76,26 +112,8 @@ def deploy_extensions(args, manifest, destination, backup):
             raise ValueError('glib-compile-schemas is required for GNOME extensions')
     valid = True
     for source, target, relative in files:
-        identical = target.is_file() and source.read_bytes() == target.read_bytes()
-        if identical:
-            print(f'{"ok" if args.action == "verify" else "unchanged"}  GNOME extension {relative}')
-        elif args.action == 'verify':
-            print(f'different  GNOME extension {relative}')
-            valid = False
-        elif args.dry_run:
-            print(f'would install GNOME extension {relative}')
-        else:
-            backup.file(target, relative)
-            target.parent.mkdir(parents=True, exist_ok=True)
-            with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as staged:
-                staged.write(source.read_bytes())
-                staged_path = Path(staged.name)
-            try:
-                staged_path.chmod(source.stat().st_mode & 0o777)
-                staged_path.replace(target)
-            finally:
-                staged_path.unlink(missing_ok=True)
-            print(f'installed  GNOME extension {relative}')
+        valid = deploy_file(args, source, target, relative, backup,
+                            f'GNOME extension {relative}') and valid
     # Another --home receives source files only, never session changes.
     if args.current_home:
         for uuid in manifest['extensions']:
@@ -233,6 +251,7 @@ def main():
     manifest = json.loads(MANIFEST.read_text())
     try:
         valid = deploy_extensions(args, manifest, destination, backup)
+        valid = deploy_fontconfig(args, backup) and valid
         valid = manage_settings(args, manifest, destination, backup) and valid
     except (ValueError, ImportError, OSError, subprocess.CalledProcessError) as error:
         print(f'zdotfiles GNOME: {error}')

@@ -81,7 +81,7 @@ For an existing default Rust toolchain, run
 | `--home PATH` | Deploy configuration to another absolute home path |
 | `--dry-run` | Preview setup without changes |
 | `--skip-extensions` | Skip VS Code and GNOME extension installation/checks |
-| `--skip-system-settings` | Skip GNOME/IBus settings; extension source files can still be deployed |
+| `--skip-system-settings` | Skip GNOME/IBus settings and font fallback; extension source files can still be deployed |
 
 ## Files and Backups
 
@@ -99,7 +99,7 @@ Other home:   PATH/.local/state/zdotfiles/backups/<timestamp>/
 
 GNOME snapshots
 ----------
-Changed GNOME settings and extension files are backed up under
+Changed GNOME settings, extension files, and Fontconfig configuration are backed up under
 <timestamp>/gnome-<unique-id>/snapshot.json and files/.
 user_value records the previous explicit GVariant override; null means the
 setting previously used its default. effective_value records what it resolved to.
@@ -114,9 +114,9 @@ Alternate home
 Prepare dependencies separately, then run setup as that user for extensions and Neovim plugins/parsers.
 Neovim requires default XDG_CONFIG_HOME and NVIM_APPNAME;
 custom XDG data, state, and cache directories are supported.
-GNOME honors XDG_DATA_HOME/XDG_STATE_HOME for the current user. Another --home
-receives extension source files under .local/share only, with no session settings,
-schema compilation, or extension activation.
+GNOME honors XDG_CONFIG_HOME/XDG_DATA_HOME/XDG_STATE_HOME for the current user.
+Another --home receives extension source files under .local/share and font fallback
+under .config, with no session settings, schema compilation, or extension activation.
 ```
 
 Manifests: [VS Code files](../manifest/vscode-files.txt),
@@ -132,7 +132,7 @@ Manifests: [VS Code files](../manifest/vscode-files.txt),
 make setup-gnome
 ./zdotfiles verify --only gnome
 
-# Settings only, or extension files only
+# Settings and font fallback only, or extension files only
 ./zdotfiles setup --only gnome --skip-extensions
 ./zdotfiles setup --only gnome --skip-system-settings
 ```
@@ -144,9 +144,21 @@ manifest/gnome-settings.json selects 33 deliberate desktop preferences:
 dark/purple appearance, Adwaita cursor, JetBrainsMono Nerd Font, US/Thai input,
 Ctrl+Shift input switching, keyboard repeat, idle/power behavior,
 window shortcuts, empty pinned apps, and hiding the Home desktop icon.
-Themes: Yaru-purple-dark. Fonts: JetBrainsMono Nerd Font / Nerd Font Mono.
+Themes: Yaru-purple-dark. Fonts: JetBrainsMono Nerd Font / Nerd Font Mono,
+with Noto Sans Thai for Thai glyphs.
 These resources must already be installed; GNOME may fall back if unavailable.
 Mouse speed is configured separately on each machine and is not managed.
+
+Thai font fallback
+----------
+Setup installs fontconfig/conf.d/60-jetbrainsmono-thai.conf under
+${XDG_CONFIG_HOME:-$HOME/.config}. Both JetBrainsMono families keep their own
+glyphs first and use Noto Sans Thai before the system's other fallback fonts.
+This rule applies to applications using Fontconfig, including outside GNOME.
+Install Noto Sans Thai separately on every machine; setup does not install fonts.
+Reopen applications to pick up changed font configuration. Verify checks the
+deployed file, not font availability or how each application renders Thai.
+--skip-system-settings skips font fallback deployment and verification.
 
 Shortcut lists
 ----------
@@ -269,7 +281,7 @@ or when managing only Neovim.
 | Neovim | Dependencies, plugin commits, parser loading/highlighting, config errors |
 | VS Code | Local extension registration/content/version/removal state; Marketplace installation |
 | IBus | Emoji shortcut, when available |
-| GNOME | Managed settings, source files, schema freshness, configured extension UUIDs |
+| GNOME | Managed settings, source files, Fontconfig fallback file, schema freshness, configured extension UUIDs |
 
 ```text
 Limits
