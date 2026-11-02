@@ -25,6 +25,9 @@ node --experimental-vm-modules tests/gnome-overview.js
 # Load config without language servers, including a broken rustup proxy
 nvim --headless -u NONE -i NONE -l tests/nvim-optional.lua
 
+# Per-language hint commands and LSP refreshes in isolated XDG directories
+PYTHONDONTWRITEBYTECODE=1 python3 tests/nvim-hints.py
+
 # Neovim integration in an isolated home
 PYTHONDONTWRITEBYTECODE=1 python3 tests/nvim.py
 

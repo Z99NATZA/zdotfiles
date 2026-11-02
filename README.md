@@ -24,6 +24,22 @@ make setup-gnome
 ./zdotfiles verify --only gnome
 ```
 
+## Neovim inlay hints
+
+```bash
+# ---------- bash ---------- #
+
+# Config updates automatically; reopen Neovim after changing hints
+
+# Rust
+make enable-hint-rust
+make disable-hint-rust
+
+# Python
+make enable-hint-py
+make disable-hint-py
+```
+
 [Configuration](docs/configuration.md)
 
 [Required packages](docs/configuration.md#ubuntu-packages)

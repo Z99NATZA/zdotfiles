@@ -233,6 +233,35 @@ make setup-nvim
 ```
 
 ```text
+Inlay hints
+==========
+
+Both languages default to enabled. Reopen Neovim after changing a preference.
+Commands require Neovim and run without loading plugins or language servers.
+Commands update the installed init.lua from this repository, backing up changed files.
+Only inline hints are toggled; hover, completion, diagnostics, and highlighting remain available.
+
+Preferences
+----------
+
+Preferences are stored separately per language under
+Neovim's stdpath("state")/zdotfiles/hints/ (rust.disabled and py.disabled).
+They honor XDG_STATE_HOME and NVIM_APPNAME and survive setup-nvim.
+```
+
+```bash
+# ---------- bash ---------- #
+
+# Enable or disable Rust inlay hints
+make enable-hint-rust
+make disable-hint-rust
+
+# Enable or disable Python inlay hints
+make enable-hint-py
+make disable-hint-py
+```
+
+```text
 Dependencies
 ==========
 Setup never invokes sudo, apt, or language-server installers.

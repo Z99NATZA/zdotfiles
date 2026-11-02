@@ -382,12 +382,25 @@ end
 -- Refresh again after a language server has indexed the workspace. Its first
 -- inlay-hint response can be empty while project loading is still in progress.
 local inlay_hint_group = vim.api.nvim_create_augroup("lsp-inlay-hints", { clear = true })
+local hint_directory = vim.fn.stdpath("state") .. "/zdotfiles/hints/"
+local hint_enabled = {
+  rust = vim.fn.filereadable(hint_directory .. "rust.disabled") == 0,
+  python = vim.fn.filereadable(hint_directory .. "py.disabled") == 0,
+}
 
 local function refresh_inlay_hints(bufnr)
   if vim.api.nvim_buf_is_valid(bufnr) then
-    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    vim.lsp.inlay_hint.enable(hint_enabled[vim.bo[bufnr].filetype] ~= false, { bufnr = bufnr })
   end
 end
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = inlay_hint_group,
+  pattern = { "rust", "python" },
+  callback = function(args)
+    refresh_inlay_hints(args.buf)
+  end,
+})
 
 vim.api.nvim_create_autocmd("LspAttach", {
   group = inlay_hint_group,
