@@ -324,6 +324,16 @@ map("n", "K", function()
   end
 end, { desc = "Show hint/documentation" })
 
+map("n", "<Esc>", function()
+  local preview = vim.b.lsp_floating_preview
+  if vim.w.lsp_floating_bufnr then
+    preview = vim.api.nvim_get_current_win()
+  end
+  if preview and vim.api.nvim_win_is_valid(preview) then
+    vim.api.nvim_win_close(preview, true)
+  end
+end, { silent = true, desc = "Close LSP popup" })
+
 -- Rust language server (provides hover documentation, diagnostics, and more)
 vim.lsp.config("rust_analyzer", {
   cmd = { "rust-analyzer" },
@@ -748,6 +758,12 @@ local plugins = {
       },
     },
     config = function(_, opts)
+      if vim.fn.has("nvim-0.12") == 1 then
+        -- The legacy Markdown injection directive expects a single TSNode;
+        -- Neovim 0.12 passes a list. Use the matching native query for hover.
+        local injections = vim.fn.readfile(vim.env.VIMRUNTIME .. "/queries/markdown/injections.scm")
+        vim.treesitter.query.set("markdown", "injections", table.concat(injections, "\n"))
+      end
       require("nvim-treesitter.configs").setup(opts)
     end,
   },

@@ -28,6 +28,9 @@ nvim --headless -u NONE -i NONE -l tests/nvim-optional.lua
 # Per-language hint commands and LSP refreshes in isolated XDG directories
 PYTHONDONTWRITEBYTECODE=1 python3 tests/nvim-hints.py
 
+# Hover rendering with installed Tree-sitter and Rust/Python parsers
+nvim --headless -u NONE -i NONE -l tests/nvim-hover.lua
+
 # Neovim integration in an isolated home
 PYTHONDONTWRITEBYTECODE=1 python3 tests/nvim.py
 

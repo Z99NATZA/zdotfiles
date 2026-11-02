@@ -97,6 +97,7 @@ Outside Visual mode, Ctrl+D keeps Vim half-page scrolling.
 | `\w` / `\df` | Save the file or save all files and quit |
 | `\rs` | Restart Neovim and reload the configuration |
 | `K` / `gd` / `gr` | Show a hint, go to a definition, or find references (LSP) |
+| `Esc` in Normal mode | Close the LSP hover popup |
 | `[h` / `]h` | Go to the previous or next Git change |
 
 ```text
