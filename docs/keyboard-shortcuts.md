@@ -57,6 +57,7 @@ Sidebar resizing restores the previous focus; repeated operations are serialized
 | Shortcut | Action |
 |---|---|
 | `kj` in Insert mode | Return to Normal mode |
+| `U` in Normal and Visual modes | Disabled; lowercase `u` still undoes changes |
 | `O` in Normal mode | Open a line above and indent from the preceding code, including before a closing brace |
 | `Ctrl+J` / `Ctrl+K` | Move down or up five lines in Normal and Visual modes |
 | `K` in Normal mode | Show editor hover information |
@@ -93,6 +94,7 @@ and dot-repeat do not fully match Neovim.
 | Shortcut | Action |
 |---|---|
 | `kj` in Insert mode | Return to Normal mode |
+| `U` in Normal and Visual modes | Disabled; lowercase `u` still undoes changes |
 | `Ctrl+J` / `Ctrl+K` | Move five lines down or up in Normal and Visual modes |
 | `Alt+J` / `Alt+K` | Move the line or selection down or up |
 | `Ctrl+0` | Switch focus between the nvim-tree sidebar and editor |

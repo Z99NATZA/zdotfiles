@@ -52,6 +52,9 @@ local map = vim.keymap.set
 -- Ignore F1 in every mode to avoid opening help accidentally.
 map({ "n", "x", "s", "o", "i", "c", "t" }, "<F1>", "<Nop>", { silent = true, desc = "Disable F1" })
 
+-- Ignore uppercase U commands if Caps Lock is enabled accidentally.
+map({ "n", "x" }, "U", "<Nop>", { silent = true, desc = "Disable U" })
+
 map({ "n", "x" }, "<C-j>", "5j", { desc = "Move down 5 lines" })
 map({ "n", "x" }, "<C-k>", "5k", { desc = "Move up 5 lines" })
 map("i", "kj", "<Esc>", { desc = "Exit insert mode" })
