@@ -117,11 +117,13 @@
     },
     {
         "key": "meta+[KeyH]",
-        "command": "workbench.action.previousEditorInGroup"
+        "command": "workbench.action.previousEditorInGroup",
+        "when": "!activeEditorIsFirstInGroup"
     },
     {
         "key": "meta+[KeyL]",
-        "command": "workbench.action.nextEditorInGroup"
+        "command": "workbench.action.nextEditorInGroup",
+        "when": "!activeEditorIsLastInGroup"
     },
     {
         "key": "meta+[KeyJ]",

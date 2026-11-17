@@ -40,7 +40,7 @@ by zter itself; zdotfiles does not install or rewrite application launchers.
 | `Ctrl+B` | Toggle the primary sidebar |
 | `Super+-` / `Super+=` | Shrink or expand the focused editor group; adjust terminal height when the terminal is focused |
 | `Super+,` / `Super+.` | Shrink or expand the primary sidebar |
-| `Super+H` / `Super+L` | Open the previous or next editor tab in the group |
+| `Super+H` / `Super+L` | Open the previous or next editor tab in the group; stop at the first or last tab without wrapping |
 | `Super+J` / `Super+K` | Focus the terminal (create one if needed) or return to the active editor group |
 | `Super+W` | Close the focused editor tab |
 | `Ctrl+D` in VSCodeVim Visual mode | Add the next matching selection |
