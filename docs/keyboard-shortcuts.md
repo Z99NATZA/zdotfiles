@@ -57,6 +57,7 @@ Sidebar resizing restores the previous focus; repeated operations are serialized
 | Shortcut | Action |
 |---|---|
 | `kj` in Insert mode | Return to Normal mode |
+| `O` in Normal mode | Open a line above and indent from the preceding code, including before a closing brace |
 | `Ctrl+J` / `Ctrl+K` | Move down or up five lines in Normal and Visual modes |
 | `K` in Normal mode | Show editor hover information |
 | `Ctrl+P` in Normal mode | Open Quick Open |
@@ -77,6 +78,14 @@ Esc         Leave Insert mode
 Esc         Return to a single cursor
 
 Outside Visual mode, Ctrl+D keeps Vim half-page scrolling.
+
+Open line above
+----------
+O keeps Vim's line insertion, then runs VS Code's Reindent Selected Lines
+and places the cursor after the indentation. This fixes opening a line before
+a closing brace in Rust and JavaScript, including after moving with 0.
+Indentation depends on the language's VS Code rules; Python blank-line cases
+and dot-repeat do not fully match Neovim.
 ```
 
 ## Neovim

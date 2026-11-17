@@ -11,6 +11,13 @@
         }
     ],
     "vim.normalModeKeyBindingsNonRecursive": [
+        // VSCodeVim copies the current line's indent even on a closing brace.
+        // Reindent the new line from the preceding code, then enter at its end.
+        {
+            "before": ["O"],
+            "after": ["O"],
+            "commands": ["editor.action.reindentselectedlines", "cursorEnd"]
+        },
         {
             "before": ["<C-j>"],
             "after": ["5", "j"]
