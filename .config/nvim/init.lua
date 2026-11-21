@@ -29,9 +29,9 @@ vim.opt.softtabstop = 4
 vim.opt.expandtab = true
 
 vim.api.nvim_create_autocmd("FileType", {
-  desc = "Disable comment continuation for o and O",
+  desc = "Disable automatic comment continuation when opening a line",
   callback = function()
-    vim.opt_local.formatoptions:remove("o")
+    vim.opt_local.formatoptions:remove({ "r", "o" })
   end,
 })
 
