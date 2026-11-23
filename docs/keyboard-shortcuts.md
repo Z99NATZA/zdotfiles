@@ -106,6 +106,7 @@ These cases do not fully match Neovim.
 | `Ctrl+Space` | Toggle the terminal panel |
 | `Super+,` / `Super+.` | Shrink or expand the visible sidebar |
 | `Super+-` / `Super+=` | Shrink or expand the visible terminal panel |
+| `Super+J` / `Super+K` | Focus the terminal panel (open it if closed) or return to the editor above it |
 | `\e` / `\ff` | Open a file path or find files with Telescope |
 | `\cp` | Copy the selected file path or current file path |
 | `\w` / `\df` | Save the file or save all files and quit |

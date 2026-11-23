@@ -320,6 +320,31 @@ map({ "n", "i", "x", "t" }, "<D-=>", function()
   resize_terminal(2)
 end, { desc = "Expand terminal panel" })
 
+local function focus_terminal_panel()
+  if not terminal_winid or not vim.api.nvim_win_is_valid(terminal_winid) then
+    toggle_terminal()
+    return
+  end
+
+  vim.api.nvim_set_current_win(terminal_winid)
+  vim.cmd("startinsert")
+end
+
+local function focus_editor_from_terminal()
+  if terminal_winid and vim.api.nvim_get_current_win() == terminal_winid then
+    vim.cmd("wincmd k")
+  end
+end
+
+vim.api.nvim_create_user_command("FocusTerminal", focus_terminal_panel, {})
+vim.api.nvim_create_user_command("FocusEditor", focus_editor_from_terminal, {})
+
+-- Super+J / Super+K move between the editor (above) and the terminal panel (below).
+map("n", "<D-j>", focus_terminal_panel, { desc = "Focus terminal panel" })
+map({ "i", "x" }, "<D-j>", "<Esc><cmd>FocusTerminal<CR>", { desc = "Focus terminal panel" })
+map("n", "<D-k>", focus_editor_from_terminal, { desc = "Focus editor from terminal panel" })
+map("t", "<D-k>", [[<C-\><C-n><cmd>FocusEditor<CR>]], { desc = "Focus editor from terminal panel" })
+
 -- Ctrl+` is encoded as Ctrl+@ / Ctrl+Space by terminals that do not support
 -- extended keyboard reporting. Map every representation to the same action.
 for _, lhs in ipairs({ "<C-`>", "<C-@>", "<C-Space>" }) do
