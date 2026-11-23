@@ -329,13 +329,29 @@ for _, lhs in ipairs({ "<C-`>", "<C-@>", "<C-Space>" }) do
   map("t", lhs, [[<C-\><C-n><cmd>ToggleTerminal<CR>]], { desc = "Toggle terminal panel" })
 end
 
-map("n", "K", function()
+local function show_lsp_hover()
   if #vim.lsp.get_clients({ bufnr = 0 }) > 0 then
     vim.lsp.buf.hover({ border = "rounded" })
   else
     vim.diagnostic.open_float(nil, { border = "rounded", focus = false })
   end
-end, { desc = "Show hint/documentation" })
+end
+
+-- K shows the diagnostic when the cursor is on the problem token, otherwise the
+-- LSP hover. Use \K to force the LSP hover even on a token with a diagnostic.
+map("n", "K", function()
+  local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local under_cursor = vim.tbl_filter(function(diagnostic)
+    return col >= diagnostic.col and col <= (diagnostic.end_col or diagnostic.col)
+  end, vim.diagnostic.get(0, { lnum = lnum - 1 }))
+  if #under_cursor > 0 then
+    vim.diagnostic.open_float(nil, { border = "rounded", focus = false, scope = "cursor" })
+  else
+    show_lsp_hover()
+  end
+end, { desc = "Show diagnostic or hint/documentation" })
+
+map("n", "<leader>K", show_lsp_hover, { desc = "Show LSP hover documentation" })
 
 map("n", "<Esc>", function()
   local preview = vim.b.lsp_floating_preview

@@ -110,7 +110,9 @@ These cases do not fully match Neovim.
 | `\cp` | Copy the selected file path or current file path |
 | `\w` / `\df` | Save the file or save all files and quit |
 | `\rs` | Restart Neovim and reload the configuration |
-| `K` / `gd` / `gr` | Show a hint, go to a definition, or find references (LSP) |
+| `K` | Show the diagnostic when the cursor is on the problem token; otherwise show the LSP hover |
+| `\K` | Show the LSP hover for the token under the cursor, even when it has a diagnostic |
+| `gd` / `gr` | Go to a definition or find references (LSP) |
 | `Esc` in Normal mode | Close the LSP hover popup |
 | `[h` / `]h` | Go to the previous or next Git change |
 
