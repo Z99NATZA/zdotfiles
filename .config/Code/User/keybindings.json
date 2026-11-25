@@ -135,7 +135,7 @@
     },
     {
         "key": "meta+w",
-        "command": "workbench.action.closeActiveEditor",
+        "command": "workbench.action.closeActivePinnedEditor",
         "when": "editorTextFocus"
     },
     {
