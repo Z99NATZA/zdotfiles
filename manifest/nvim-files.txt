@@ -1,3 +1,4 @@
 # Paths are relative to both the repository root and the target home directory.
 .config/nvim/init.lua
 .config/nvim/lazy-lock.json
+.config/nvim/lua/visual_word_selection.lua

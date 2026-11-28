@@ -500,6 +500,12 @@ vim.g.zdotfiles_parsers = { "lua", "vim", "vimdoc", "query", "python", "rust", "
 
 local plugins = {
   {
+    "mg979/vim-visual-multi",
+    init = function()
+      require("visual_word_selection").setup()
+    end,
+  },
+  {
     "sonph/onehalf",
     lazy = false,
     priority = 1000,
